@@ -1,59 +1,159 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { imageManagementService } from '@/services/image-management.service';
 
+/**
+ * Scheduled cleanup job for unused images
+ * POST /api/admin/images/cleanup
+ * 
+ * This endpoint can be called by:
+ * 1. Manual admin action
+ * 2. Cron jobs (via /api/cron/cleanup-images)
+ * 3. Scheduled tasks
+ */
 export async function POST(request: NextRequest) {
   try {
-    // Run the cleanup job
+    const { 
+      dryRun = false, 
+      maxAge = 24, // hours
+      batchSize = 50,
+      forceDelete = false 
+    } = await request.json();
+
+    console.log(`🧹 Cleanup job started:`, {
+      dryRun,
+      maxAge,
+      batchSize,
+      forceDelete,
+      timestamp: new Date().toISOString()
+    });
+
+    if (dryRun) {
+      // Get counts without deleting
+      const unusedImages = await imageManagementService.getUnusedImages();
+      const oldUnusedImages = unusedImages.filter(img => {
+        const ageInHours = (Date.now() - new Date(img.created_at).getTime()) / (1000 * 60 * 60);
+        return ageInHours > maxAge;
+      });
+
+      return NextResponse.json({
+        success: true,
+        dryRun: true,
+        message: `Cleanup simulation completed`,
+        data: {
+          totalUnused: unusedImages.length,
+          eligibleForDeletion: oldUnusedImages.length,
+          estimatedSpaceSaved: oldUnusedImages.reduce((sum, img) => sum + (img.file_size || 0), 0),
+          settings: { maxAge, batchSize, forceDelete }
+        },
+      });
+    }
+
+    // Run actual cleanup
     const result = await imageManagementService.runCleanupJob();
+
+    // Enhanced cleanup with age-based filtering
+    if (maxAge > 0) {
+      const unusedImages = await imageManagementService.getUnusedImages();
+      const oldUnusedImages = unusedImages.filter(img => {
+        const ageInHours = (Date.now() - new Date(img.created_at).getTime()) / (1000 * 60 * 60);
+        return ageInHours > maxAge;
+      });
+
+      if (oldUnusedImages.length > 0) {
+        const batchIds = oldUnusedImages.slice(0, batchSize).map(img => img.id);
+        const batchResult = await imageManagementService.forceDeleteImages(batchIds);
+        
+        console.log(`🧹 Age-based cleanup: ${batchResult.deleted} old unused images deleted`);
+        
+        return NextResponse.json({
+          success: true,
+          message: `Cleanup completed: ${result.deleted_count + batchResult.deleted} total images deleted`,
+          data: {
+            standardCleanup: result,
+            ageBased: batchResult,
+            settings: { maxAge, batchSize, forceDelete }
+          },
+        });
+      }
+    }
 
     return NextResponse.json({
       success: true,
+      message: `Standard cleanup completed: ${result.deleted_count} images deleted`,
       data: {
-        deleted_count: result.deleted_count,
-        deleted_images: result.deleted_images,
-        message: result.deleted_count > 0 
-          ? `Successfully deleted ${result.deleted_count} images`
-          : 'No images were eligible for cleanup',
+        standardCleanup: result,
+        settings: { maxAge, batchSize, forceDelete }
       },
     });
 
   } catch (error) {
     console.error('Cleanup job error:', error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Cleanup job failed' },
+      { 
+        error: error instanceof Error ? error.message : 'Cleanup job failed',
+        success: false 
+      },
       { status: 500 }
     );
   }
 }
 
-export async function GET(request: NextRequest) {
+/**
+ * GET endpoint to check cleanup status and get statistics
+ */
+export async function GET() {
   try {
-    // Get cleanup statistics without running the job
-    const [unusedImages, pendingDeletionImages, globalStats] = await Promise.all([
+    const [unusedImages, globalStats] = await Promise.all([
       imageManagementService.getUnusedImages(),
-      imageManagementService.getImagesMarkedForDeletion(),
       imageManagementService.getGlobalImageStats(),
     ]);
 
-    // Count how many are eligible for immediate cleanup
-    const eligibleForCleanup = pendingDeletionImages.filter(
-      img => img.marked_for_deletion_at && new Date(img.marked_for_deletion_at) <= new Date()
-    ).length;
+    // Calculate age statistics
+    const now = Date.now();
+    const ageGroups = {
+      lessThan1Hour: 0,
+      lessThan1Day: 0,
+      lessThan1Week: 0,
+      moreThan1Week: 0,
+    };
+
+    unusedImages.forEach(img => {
+      const ageInHours = (now - new Date(img.created_at).getTime()) / (1000 * 60 * 60);
+      
+      if (ageInHours < 1) {
+        ageGroups.lessThan1Hour++;
+      } else if (ageInHours < 24) {
+        ageGroups.lessThan1Day++;
+      } else if (ageInHours < 168) { // 7 days
+        ageGroups.lessThan1Week++;
+      } else {
+        ageGroups.moreThan1Week++;
+      }
+    });
 
     return NextResponse.json({
       success: true,
       data: {
-        global_stats: globalStats,
-        unused_images_count: unusedImages.length,
-        pending_deletion_count: pendingDeletionImages.length,
-        eligible_for_cleanup: eligibleForCleanup,
+        globalStats,
+        unusedImages: {
+          total: unusedImages.length,
+          ageGroups,
+          totalSize: unusedImages.reduce((sum, img) => sum + (img.file_size || 0), 0),
+        },
+        recommendedActions: {
+          immediate: ageGroups.moreThan1Week > 0 ? `Delete ${ageGroups.moreThan1Week} images older than 1 week` : null,
+          scheduled: ageGroups.lessThan1Day > 0 ? `${ageGroups.lessThan1Day} images eligible for cleanup in 24h` : null,
+        }
       },
     });
 
   } catch (error) {
-    console.error('Get cleanup stats error:', error);
+    console.error('Cleanup status error:', error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to get cleanup stats' },
+      { 
+        error: error instanceof Error ? error.message : 'Failed to get cleanup status',
+        success: false 
+      },
       { status: 500 }
     );
   }

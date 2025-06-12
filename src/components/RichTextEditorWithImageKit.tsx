@@ -15,7 +15,7 @@ import {
   FileImageOutlined,
   LoadingOutlined,
 } from '@ant-design/icons';
-import { uploadImageViaAPI } from '@/lib/imagekit';
+import { uploadImageViaAPI, deleteImageViaAPI, isImageKitUrl } from '@/lib/imagekit';
 
 interface RichTextEditorProps {
   value?: string;
@@ -141,20 +141,21 @@ const RichTextEditorWithImageKit: React.FC<RichTextEditorProps> = ({
       const content = editorRef.current.innerHTML;
       onChange(content);
       
-      // Auto-delete functionality: Track image removal and trigger deletion
-      handleImageDeletion(content);
+      // Track image removal (no deletion during editing)
+      handleImageTracking(content);
       
       // Reset the flag after a small delay to prevent infinite loops
       setTimeout(() => setIsInternalUpdate(false), 10);
     }
   };
 
-  // Track previous content to detect deleted images
+  // Track removed images for display purposes only - NO automatic deletion
+  const [removedImages, setRemovedImages] = useState<string[]>([]);
   const [previousContent, setPreviousContent] = useState(value);
 
-  const handleImageDeletion = async (newContent: string) => {
+  const handleImageTracking = (newContent: string) => {
     try {
-      if (!articleId || !previousContent) {
+      if (!previousContent) {
         setPreviousContent(newContent);
         return;
       }
@@ -167,16 +168,19 @@ const RichTextEditorWithImageKit: React.FC<RichTextEditorProps> = ({
       const removedUrls = previousUrls.filter(url => !currentUrls.includes(url));
       
       if (removedUrls.length > 0) {
-        console.log(`🗑️ Detected ${removedUrls.length} images removed from content:`, removedUrls);
+        console.log(`📝 Rich Text Editor: Detected ${removedUrls.length} images removed from content (will be cleaned up on save):`, removedUrls);
+        setRemovedImages(prev => [...new Set([...prev, ...removedUrls])]);
         
-        // Note: The actual deletion will be handled by the article save process
-        // through the image management service. This is just for logging.
-        // The deletion happens in updateArticleImageUsage when the article is saved.
+        // Show user-friendly message about cleanup
+        message.info({
+          content: `${removedUrls.length} image(s) removed. They will be cleaned up when you save the article.`,
+          duration: 3,
+        });
       }
       
       setPreviousContent(newContent);
     } catch (error) {
-      console.error('Error tracking image deletion:', error);
+      console.error('Error tracking image removal:', error);
     }
   };
 
@@ -186,6 +190,7 @@ const RichTextEditorWithImageKit: React.FC<RichTextEditorProps> = ({
     const regex = /https:\/\/ik\.imagekit\.io\/[^"'\s)]+/g;
     return content.match(regex) || [];
   };
+
 
   // Enhanced paste handler for ImageKit integration
   const handlePaste = async (e: React.ClipboardEvent) => {
@@ -452,6 +457,17 @@ const RichTextEditorWithImageKit: React.FC<RichTextEditorProps> = ({
                 disabled={uploading}
               />
             </Tooltip>
+            {removedImages.length > 0 && (
+              <Tooltip title={`${removedImages.length} image(s) will be cleaned up on save`}>
+                <Button
+                  size="small"
+                  type="link"
+                  style={{ color: '#f59e0b' }}
+                >
+                  🗑️ {removedImages.length}
+                </Button>
+              </Tooltip>
+            )}
           </Space.Compact>
         </Space>
       </div>

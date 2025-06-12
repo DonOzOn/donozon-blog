@@ -1,157 +1,157 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import { 
+  Card, 
   Table, 
   Button, 
-  Space, 
-  message, 
-  Modal, 
   Tag, 
-  Typography, 
-  Image,
+  Space, 
+  Popconfirm, 
+  message, 
+  Typography,
   Statistic,
   Row,
   Col,
+  Select,
+  Input,
+  Image,
   Tooltip,
-  Popconfirm,
-  Empty
+  Modal,
+  Switch,
+  Alert
 } from 'antd';
 import { 
   DeleteOutlined,
+  ReloadOutlined,
   ExclamationCircleOutlined,
-  EyeOutlined,
   FileImageOutlined,
-  ClearOutlined,
-  RestoreOutlined,
-  BarChartOutlined
+  CloudDownloadOutlined,
+  RestOutlined,
+  PlayCircleOutlined,
+  EyeOutlined
 } from '@ant-design/icons';
-import { useAuth } from '@/contexts/AuthContext';
 import AdminLayout from '@/components/AdminLayout';
 import AdminCard from '@/components/AdminCard';
 import { imageManagementService, type ArticleImage } from '@/services/image-management.service';
+import { formatDistanceToNow } from 'date-fns';
 
-const { Text, Title } = Typography;
-const { confirm } = Modal;
+const { Title, Text } = Typography;
+const { Search } = Input;
 
-export default function ImageManagementPage() {
-  const { isAuthenticated, isLoading } = useAuth();
-  const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [cleanupLoading, setCleanupLoading] = useState(false);
-  const [allImages, setAllImages] = useState<ArticleImage[]>([]);
-  const [unusedImages, setUnusedImages] = useState<ArticleImage[]>([]);
-  const [pendingDeletionImages, setPendingDeletionImages] = useState<ArticleImage[]>([]);
-  const [globalStats, setGlobalStats] = useState<any>({});
+interface ImageStats {
+  total_images: number;
+  used_images: number;
+  unused_images: number;
+  pending_deletion: number;
+  total_size: number;
+  total_articles_with_images: number;
+}
+
+export default function AdminImagesPage() {
+  const [images, setImages] = useState<ArticleImage[]>([]);
+  const [stats, setStats] = useState<ImageStats>({
+    total_images: 0,
+    used_images: 0,
+    unused_images: 0,
+    pending_deletion: 0,
+    total_size: 0,
+    total_articles_with_images: 0,
+  });
+  const [loading, setLoading] = useState(true);
+  const [filterType, setFilterType] = useState<'all' | 'used' | 'unused' | 'pending'>('all');
+  const [searchTerm, setSearchTerm] = useState('');
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
-  const [currentView, setCurrentView] = useState<'all' | 'unused' | 'pending'>('all');
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [cleanupLoading, setCleanupLoading] = useState(false);
+  const [autoCleanup, setAutoCleanup] = useState(false);
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.push('/admin');
-    }
-  }, [isAuthenticated, isLoading, router]);
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      loadData();
-    }
-  }, [isAuthenticated]);
+    loadData();
+  }, []);
 
   const loadData = async () => {
     setLoading(true);
     try {
-      const [all, unused, pending, stats] = await Promise.all([
+      const [allImages, globalStats] = await Promise.all([
         imageManagementService.getAllImages(),
-        imageManagementService.getUnusedImages(),
-        imageManagementService.getImagesMarkedForDeletion(),
         imageManagementService.getGlobalImageStats(),
       ]);
-
-      setAllImages(all);
-      setUnusedImages(unused);
-      setPendingDeletionImages(pending);
-      setGlobalStats(stats);
+      
+      setImages(allImages);
+      setStats(globalStats);
     } catch (error) {
       console.error('Failed to load image data:', error);
-      
-      // Check if it's a migration issue
-      if (error.message?.includes('relation') || error.message?.includes('does not exist')) {
-        message.error('Image management not set up. Please run the database migration.');
-      } else {
-        message.error('Failed to load image management data');
-      }
+      message.error('Failed to load image data');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDeleteSelected = async () => {
+  const handleBulkDelete = async () => {
     if (selectedRowKeys.length === 0) {
       message.warning('Please select images to delete');
       return;
     }
 
-    confirm({
-      title: `Delete ${selectedRowKeys.length} images?`,
-      icon: <ExclamationCircleOutlined />,
-      content: 'This action cannot be undone. The images will be permanently deleted from ImageKit.',
-      okText: 'Delete',
-      okType: 'danger',
-      cancelText: 'Cancel',
-      onOk: async () => {
-        try {
-          setLoading(true);
-          const result = await imageManagementService.forceDeleteImages(selectedRowKeys);
-          
-          if (result.failed.length > 0) {
-            message.warning(`Deleted ${result.deleted} images, failed to delete ${result.failed.length} images`);
-          } else {
-            message.success(`Successfully deleted ${result.deleted} images`);
-          }
-          
-          setSelectedRowKeys([]);
-          await loadData();
-        } catch (error) {
-          console.error('Failed to delete images:', error);
-          message.error('Failed to delete images');
-        } finally {
-          setLoading(false);
-        }
-      },
-    });
+    try {
+      const result = await imageManagementService.forceDeleteImages(selectedRowKeys);
+      
+      if (result.failed.length > 0) {
+        message.warning(`Deleted ${result.deleted} images, failed to delete ${result.failed.length} images`);
+      } else {
+        message.success(`Successfully deleted ${result.deleted} images`);
+      }
+      
+      setSelectedRowKeys([]);
+      await loadData();
+    } catch (error) {
+      console.error('Bulk delete failed:', error);
+      message.error('Failed to delete images');
+    }
   };
 
-  const handleRunCleanup = async () => {
-    confirm({
-      title: 'Run Image Cleanup Job?',
-      icon: <ClearOutlined />,
-      content: 'This will permanently delete all images that have been marked for deletion and passed their grace period.',
-      okText: 'Run Cleanup',
-      okType: 'primary',
-      cancelText: 'Cancel',
-      onOk: async () => {
-        try {
-          setCleanupLoading(true);
-          const result = await imageManagementService.runCleanupJob();
-          
-          if (result.deleted_count > 0) {
-            message.success(`Cleanup completed: ${result.deleted_count} images deleted`);
-          } else {
-            message.info('No images were eligible for cleanup');
-          }
-          
-          await loadData();
-        } catch (error) {
-          console.error('Failed to run cleanup:', error);
-          message.error('Failed to run image cleanup');
-        } finally {
-          setCleanupLoading(false);
-        }
-      },
-    });
+  const handleCleanupJob = async () => {
+    setCleanupLoading(true);
+    try {
+      const result = await imageManagementService.runCleanupJob();
+      
+      if (result.deleted_count > 0) {
+        message.success(`Cleanup completed: ${result.deleted_count} images deleted`);
+        await loadData();
+      } else {
+        message.info('No images needed cleanup');
+      }
+    } catch (error) {
+      console.error('Cleanup job failed:', error);
+      message.error('Cleanup job failed');
+    } finally {
+      setCleanupLoading(false);
+    }
   };
+
+  const filteredImages = images.filter(image => {
+    // Filter by type
+    let typeMatch = true;
+    switch (filterType) {
+      case 'used':
+        typeMatch = image.is_used;
+        break;
+      case 'unused':
+        typeMatch = !image.is_used;
+        break;
+      case 'pending':
+        typeMatch = !!image.marked_for_deletion_at;
+        break;
+    }
+
+    // Filter by search term
+    const searchMatch = !searchTerm || 
+      image.file_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      image.imagekit_url.toLowerCase().includes(searchTerm.toLowerCase());
+
+    return typeMatch && searchMatch;
+  });
 
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return '0 B';
@@ -161,38 +161,25 @@ export default function ImageManagementPage() {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
-
-  const getDaysUntilDeletion = (markedDate: string) => {
-    const marked = new Date(markedDate);
-    const now = new Date();
-    const diffTime = marked.getTime() - now.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return Math.max(0, diffDays);
-  };
-
   const columns = [
     {
-      title: 'Image',
+      title: 'Preview',
       dataIndex: 'imagekit_url',
-      key: 'image',
+      key: 'preview',
       width: 80,
-      render: (url: string, record: ArticleImage) => (
+      render: (url: string) => (
         <Image
           src={url}
-          alt={record.file_name}
-          width={60}
-          height={40}
+          alt="Preview"
+          width={50}
+          height={50}
           style={{ objectFit: 'cover', borderRadius: 4 }}
-          fallback="/placeholder-image.png"
+          preview={{
+            src: url,
+            onVisibleChange: (visible) => {
+              if (!visible) setPreviewImage(null);
+            }
+          }}
         />
       ),
     },
@@ -200,57 +187,55 @@ export default function ImageManagementPage() {
       title: 'File Name',
       dataIndex: 'file_name',
       key: 'file_name',
-      render: (name: string) => (
-        <Text code style={{ fontSize: '12px' }}>
-          {name.length > 30 ? `${name.substring(0, 30)}...` : name}
-        </Text>
+      ellipsis: true,
+      render: (name: string, record: ArticleImage) => (
+        <div>
+          <div className="font-medium text-white">{name}</div>
+          <div className="text-xs text-slate-400">
+            {formatFileSize(record.file_size || 0)} • {record.mime_type}
+          </div>
+        </div>
       ),
     },
     {
-      title: 'Size',
-      dataIndex: 'file_size',
-      key: 'file_size',
-      width: 80,
-      render: (size: number) => (
-        <Text type="secondary">{formatFileSize(size || 0)}</Text>
+      title: 'Status',
+      dataIndex: 'is_used',
+      key: 'status',
+      width: 120,
+      render: (isUsed: boolean, record: ArticleImage) => (
+        <Space direction="vertical" size="small">
+          <Tag color={isUsed ? 'green' : 'orange'}>
+            {isUsed ? 'Used' : 'Unused'}
+          </Tag>
+          {record.is_featured_image && (
+            <Tag color="blue">Featured</Tag>
+          )}
+          {record.marked_for_deletion_at && (
+            <Tag color="red">Pending Deletion</Tag>
+          )}
+        </Space>
       ),
     },
     {
       title: 'Article',
+      dataIndex: 'article_id',
       key: 'article',
-      render: (record: any) => {
-        if (record.articles?.title) {
+      render: (articleId: string, record: any) => {
+        if (!articleId) {
+          return <Text className="text-slate-400">Orphaned</Text>;
+        }
+        
+        const article = record.articles;
+        if (article) {
           return (
             <div>
-              <Text strong>{record.articles.title}</Text>
-              <br />
-              <Text type="secondary" style={{ fontSize: '12px' }}>
-                /{record.articles.slug}
-              </Text>
+              <div className="text-white">{article.title}</div>
+              <div className="text-xs text-slate-400">/{article.slug}</div>
             </div>
           );
         }
-        return <Text type="secondary">No article</Text>;
-      },
-    },
-    {
-      title: 'Status',
-      key: 'status',
-      width: 120,
-      render: (record: ArticleImage) => {
-        if (record.marked_for_deletion_at) {
-          const daysLeft = getDaysUntilDeletion(record.marked_for_deletion_at);
-          return (
-            <Tag color="orange">
-              Deletion in {daysLeft}d
-            </Tag>
-          );
-        }
-        return record.is_used ? (
-          <Tag color="green">Used</Tag>
-        ) : (
-          <Tag color="red">Unused</Tag>
-        );
+        
+        return <Text className="text-slate-400">Article ID: {articleId}</Text>;
       },
     },
     {
@@ -259,9 +244,11 @@ export default function ImageManagementPage() {
       key: 'created_at',
       width: 120,
       render: (date: string) => (
-        <Text type="secondary" style={{ fontSize: '12px' }}>
-          {formatDate(date)}
-        </Text>
+        <Tooltip title={new Date(date).toLocaleString()}>
+          <Text className="text-slate-400">
+            {formatDistanceToNow(new Date(date), { addSuffix: true })}
+          </Text>
+        </Tooltip>
       ),
     },
     {
@@ -269,35 +256,30 @@ export default function ImageManagementPage() {
       key: 'actions',
       width: 100,
       render: (record: ArticleImage) => (
-        <Space size="small">
-          <Tooltip title="View Image">
+        <Space>
+          <Tooltip title="View Full Size">
             <Button
               type="text"
               size="small"
               icon={<EyeOutlined />}
-              onClick={() => window.open(record.imagekit_url, '_blank')}
+              onClick={() => setPreviewImage(record.imagekit_url)}
+              className="text-slate-400 hover:text-white"
             />
           </Tooltip>
           <Popconfirm
-            title="Delete this image?"
-            description="This action cannot be undone."
-            onConfirm={async () => {
-              try {
-                await imageManagementService.forceDeleteImages([record.id]);
-                message.success('Image deleted successfully');
-                await loadData();
-              } catch (error) {
-                message.error('Failed to delete image');
-              }
-            }}
+            title="Delete Image"
+            description="Are you sure you want to delete this image? This action cannot be undone."
+            onConfirm={() => handleBulkDelete()}
             okText="Delete"
             okType="danger"
+            cancelText="Cancel"
           >
             <Button
               type="text"
               size="small"
               icon={<DeleteOutlined />}
-              danger
+              className="text-red-400 hover:text-red-300"
+              onClick={() => setSelectedRowKeys([record.id])}
             />
           </Popconfirm>
         </Space>
@@ -305,172 +287,242 @@ export default function ImageManagementPage() {
     },
   ];
 
-  const rowSelection = {
-    selectedRowKeys,
-    onChange: (newSelectedRowKeys: React.Key[]) => {
-      setSelectedRowKeys(newSelectedRowKeys as string[]);
-    },
-  };
-
-  if (isLoading) {
-    return (
-      <AdminLayout title="Image Management" description="Manage article images and cleanup unused files">
-        <div className="min-h-[400px] flex items-center justify-center">
-          <div className="text-center">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-            <p className="mt-2 text-slate-400">Loading...</p>
-          </div>
-        </div>
-      </AdminLayout>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return null;
-  }
-
-  const displayImages = [...unusedImages, ...pendingDeletionImages];
-
   return (
-    <AdminLayout 
-      title={
-        <div className="flex items-center gap-3">
-          <FileImageOutlined className="text-blue-400" />
-          Image Management
-        </div>
-      } 
-      description="Manage article images and cleanup unused files"
-    >
-      {/* Statistics */}
-      <AdminCard title="Image Statistics" className="mb-6">
-        <Row gutter={16}>
-          <Col xs={12} sm={6}>
+    <AdminLayout title="Image Management" description="Manage and optimize your blog images">
+      {/* Statistics Cards */}
+      <Row gutter={[16, 16]} className="mb-6">
+        <Col xs={24} sm={12} lg={6}>
+          <AdminCard>
             <Statistic
-              title="Total Images"
-              value={globalStats.total_images || 0}
-              valueStyle={{ color: '#3b82f6' }}
-              prefix={<FileImageOutlined />}
+              title={<span className="text-slate-300">Total Images</span>}
+              value={stats.total_images}
+              prefix={<FileImageOutlined className="text-blue-400" />}
+              valueStyle={{ color: '#60a5fa' }}
+            />
+          </AdminCard>
+        </Col>
+        <Col xs={24} sm={12} lg={6}>
+          <AdminCard>
+            <Statistic
+              title={<span className="text-slate-300">Used Images</span>}
+              value={stats.used_images}
+              prefix={<span className="text-green-400">✓</span>}
+              valueStyle={{ color: '#34d399' }}
+            />
+          </AdminCard>
+        </Col>
+        <Col xs={24} sm={12} lg={6}>
+          <AdminCard>
+            <Statistic
+              title={<span className="text-slate-300">Unused Images</span>}
+              value={stats.unused_images}
+              prefix={<span className="text-orange-400">⚠</span>}
+              valueStyle={{ color: '#fb923c' }}
+            />
+          </AdminCard>
+        </Col>
+        <Col xs={24} sm={12} lg={6}>
+          <AdminCard>
+            <Statistic
+              title={<span className="text-slate-300">Total Size</span>}
+              value={formatFileSize(stats.total_size)}
+              prefix={<CloudDownloadOutlined className="text-purple-400" />}
+              valueStyle={{ color: '#a78bfa' }}
+            />
+          </AdminCard>
+        </Col>
+      </Row>
+
+      {/* Actions and Auto-Cleanup */}
+      <AdminCard className="mb-6">
+        <Row gutter={[16, 16]} align="middle">
+          <Col xs={24} lg={12}>
+            <Space wrap>
+              <Button
+                type="primary"
+                icon={<PlayCircleOutlined />}
+                onClick={handleCleanupJob}
+                loading={cleanupLoading}
+                style={{
+                  background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                  borderColor: 'transparent'
+                }}
+              >
+                Run Cleanup Job
+              </Button>
+              <Button
+                icon={<ReloadOutlined />}
+                onClick={loadData}
+                loading={loading}
+                style={{
+                  backgroundColor: 'rgba(51, 65, 85, 0.5)',
+                  borderColor: '#475569',
+                  color: '#cbd5e1'
+                }}
+              >
+                Refresh
+              </Button>
+              {selectedRowKeys.length > 0 && (
+                <Popconfirm
+                  title="Bulk Delete"
+                  description={`Delete ${selectedRowKeys.length} selected images?`}
+                  onConfirm={handleBulkDelete}
+                  okText="Delete"
+                  okType="danger"
+                >
+                  <Button
+                    danger
+                    icon={<DeleteOutlined />}
+                  >
+                    Delete Selected ({selectedRowKeys.length})
+                  </Button>
+                </Popconfirm>
+              )}
+            </Space>
+          </Col>
+          <Col xs={24} lg={12}>
+            <div className="flex items-center justify-end space-x-4">
+              <div className="flex items-center space-x-2">
+                <Text className="text-slate-300">Auto-cleanup:</Text>
+                <Switch
+                  checked={autoCleanup}
+                  onChange={setAutoCleanup}
+                  size="small"
+                />
+              </div>
+            </div>
+          </Col>
+        </Row>
+        
+        {stats.unused_images > 0 && (
+          <Alert
+            className="mt-4"
+            message="Unused Images Detected"
+            description={`You have ${stats.unused_images} unused images taking up ${formatFileSize(
+              images.filter(img => !img.is_used).reduce((sum, img) => sum + (img.file_size || 0), 0)
+            )} of storage. Consider running a cleanup job.`}
+            type="warning"
+            showIcon
+            style={{
+              backgroundColor: 'rgba(245, 158, 11, 0.1)',
+              borderColor: 'rgba(245, 158, 11, 0.3)',
+              color: '#fbbf24'
+            }}
+          />
+        )}
+      </AdminCard>
+
+      {/* Filters and Search */}
+      <AdminCard className="mb-6">
+        <Row gutter={[16, 16]} align="middle">
+          <Col xs={24} sm={12} lg={8}>
+            <Select
+              value={filterType}
+              onChange={setFilterType}
+              style={{ width: '100%' }}
+              options={[
+                { label: 'All Images', value: 'all' },
+                { label: 'Used Images', value: 'used' },
+                { label: 'Unused Images', value: 'unused' },
+                { label: 'Pending Deletion', value: 'pending' },
+              ]}
             />
           </Col>
-          <Col xs={12} sm={6}>
-            <Statistic
-              title="Used Images"
-              value={globalStats.used_images || 0}
-              valueStyle={{ color: '#10b981' }}
-            />
-          </Col>
-          <Col xs={12} sm={6}>
-            <Statistic
-              title="Unused Images"
-              value={globalStats.unused_images || 0}
-              valueStyle={{ color: '#f59e0b' }}
-            />
-          </Col>
-          <Col xs={12} sm={6}>
-            <Statistic
-              title="Total Size"
-              value={formatFileSize(globalStats.total_size || 0)}
-              valueStyle={{ color: '#8b5cf6' }}
+          <Col xs={24} sm={12} lg={16}>
+            <Search
+              placeholder="Search by filename or URL..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{ width: '100%' }}
             />
           </Col>
         </Row>
       </AdminCard>
 
-      {/* Actions */}
-      <AdminCard className="mb-6">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <Button
-              type="primary"
-              icon={<ClearOutlined />}
-              onClick={handleRunCleanup}
-              loading={cleanupLoading}
-              style={{
-                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                borderColor: 'transparent'
-              }}
-            >
-              Run Cleanup Job
-            </Button>
-            
-            <Button
-              icon={<BarChartOutlined />}
-              onClick={loadData}
-              loading={loading}
-            >
-              Refresh Data
-            </Button>
-          </div>
-
-          {selectedRowKeys.length > 0 && (
-            <div className="flex items-center gap-3">
-              <Text type="secondary">
-                {selectedRowKeys.length} selected
-              </Text>
-              <Button
-                type="primary"
-                danger
-                icon={<DeleteOutlined />}
-                onClick={handleDeleteSelected}
-                disabled={loading}
-              >
-                Delete Selected
-              </Button>
-            </div>
-          )}
-        </div>
-      </AdminCard>
-
       {/* Images Table */}
-      <AdminCard title={`Image Management (${displayImages.length} images)`}>
-        {displayImages.length === 0 ? (
-          <Empty
-            image={Empty.PRESENTED_IMAGE_SIMPLE}
-            description={
-              <span className="text-slate-400">
-                No unused or pending deletion images found
-              </span>
-            }
-          />
-        ) : (
-          <Table
-            rowSelection={rowSelection}
-            columns={columns}
-            dataSource={displayImages}
-            rowKey="id"
-            loading={loading}
-            pagination={{
-              pageSize: 20,
-              showSizeChanger: true,
-              showQuickJumper: true,
-              showTotal: (total, range) =>
-                `${range[0]}-${range[1]} of ${total} images`,
-            }}
-            scroll={{ x: 800 }}
-          />
-        )}
+      <AdminCard>
+        <Table
+          columns={columns}
+          dataSource={filteredImages}
+          rowKey="id"
+          loading={loading}
+          pagination={{
+            pageSize: 20,
+            showSizeChanger: true,
+            showQuickJumper: true,
+            showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} images`,
+          }}
+          rowSelection={{
+            selectedRowKeys,
+            onChange: setSelectedRowKeys,
+            getCheckboxProps: (record) => ({
+              disabled: record.is_used && !record.marked_for_deletion_at,
+            }),
+          }}
+          scroll={{ x: 800 }}
+          className="image-management-table"
+        />
       </AdminCard>
+
+      {/* Image Preview Modal */}
+      <Modal
+        open={!!previewImage}
+        footer={null}
+        onCancel={() => setPreviewImage(null)}
+        width="80%"
+        style={{ maxWidth: 1000 }}
+        centered
+      >
+        {previewImage && (
+          <div className="text-center">
+            <Image
+              src={previewImage}
+              alt="Full size preview"
+              style={{ maxWidth: '100%', maxHeight: '70vh' }}
+            />
+            <div className="mt-4 text-slate-400">
+              <Text copyable={{ text: previewImage }}>
+                {previewImage}
+              </Text>
+            </div>
+          </div>
+        )}
+      </Modal>
 
       <style jsx global>{`
-        .ant-statistic-title {
+        .image-management-table .ant-table {
+          background: rgba(30, 41, 59, 0.5) !important;
+          border: 1px solid rgba(71, 85, 105, 0.3) !important;
+        }
+
+        .image-management-table .ant-table-thead > tr > th {
+          background: rgba(51, 65, 85, 0.8) !important;
+          border-color: rgba(71, 85, 105, 0.3) !important;
           color: #cbd5e1 !important;
         }
-        
-        .ant-table-thead > tr > th {
+
+        .image-management-table .ant-table-tbody > tr > td {
+          border-color: rgba(71, 85, 105, 0.2) !important;
+          background: transparent !important;
+        }
+
+        .image-management-table .ant-table-tbody > tr:hover > td {
+          background: rgba(51, 65, 85, 0.3) !important;
+        }
+
+        .ant-select-selector {
           background-color: rgba(51, 65, 85, 0.5) !important;
-          border-bottom: 1px solid #475569 !important;
-          color: #cbd5e1 !important;
+          border-color: #475569 !important;
+          color: #ffffff !important;
         }
-        
-        .ant-table-tbody > tr > td {
-          border-bottom: 1px solid rgba(71, 85, 105, 0.3) !important;
+
+        .ant-input {
+          background-color: rgba(51, 65, 85, 0.5) !important;
+          border-color: #475569 !important;
+          color: #ffffff !important;
         }
-        
-        .ant-table-tbody > tr:hover > td {
-          background-color: rgba(51, 65, 85, 0.3) !important;
-        }
-        
-        .ant-empty-description {
+
+        .ant-input::placeholder {
           color: #94a3b8 !important;
         }
       `}</style>

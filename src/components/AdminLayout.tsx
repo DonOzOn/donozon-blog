@@ -115,16 +115,16 @@ export default function AdminLayout({ children, title = 'Admin Dashboard', descr
       //   { key: 'tags-list', label: 'Manage Tags', href: '/admin/tags' },
       // ]
     },
-    // {
-    //   key: 'images',
-    //   icon: <FileImageOutlined className="text-lg" />,
-    //   label: 'Image Management',
-    //   href: '/admin/images',
-    //   active: pathname.startsWith('/admin/images'),
-    //   // children: [
-    //   //   { key: 'images-list', label: 'Manage Images', href: '/admin/images' },
-    //   // ]
-    // },
+    {
+      key: 'images',
+      icon: <FileImageOutlined className="text-lg" />,
+      label: 'Image Management',
+      href: '/admin/images',
+      active: pathname.startsWith('/admin/images'),
+      // children: [
+      //   { key: 'images-list', label: 'Manage Images', href: '/admin/images' },
+      // ]
+    },
   ];
 
   return (

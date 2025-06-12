@@ -1,26 +1,109 @@
 'use client';
 
+import { useState, useEffect, useMemo } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { ArticleCard } from '@/components/ArticleCard';
 import { Footer } from '@/components/Footer';
 import { Navbar } from '@/components/Navbar';
-import { Section } from '@/components/Section';
-import { useArticles, useFeaturedArticles } from '@/hooks/useArticles';
+import { useSearchArticles, useArticles } from '@/hooks/useArticles';
 import { useCategories } from '@/hooks/useCategories';
-import { Skeleton } from 'antd';
+import { usePopularTags } from '@/hooks/useTags';
+import { Input, Select, Tag, Pagination, Skeleton, Button } from 'antd';
+import { SearchOutlined, FilterOutlined, ClearOutlined } from '@ant-design/icons';
+
+const { Search } = Input;
+const { Option } = Select;
 
 export default function ArticlesPage() {
-  const { data: articlesData, isLoading: articlesLoading } = useArticles({ limit: 100 });
-  const { data: featuredArticles = [], isLoading: featuredLoading } = useFeaturedArticles();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  
+  // State for filters
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
+  const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || '');
+  const [selectedTags, setSelectedTags] = useState<string[]>(
+    searchParams.get('tags') ? searchParams.get('tags')!.split(',') : []
+  );
+  const [currentPage, setCurrentPage] = useState(Number(searchParams.get('page')) || 1);
+  const [pageSize] = useState(12); // Articles per page
+
+  // Data fetching
   const { data: categories = [] } = useCategories();
+  const { data: popularTags = [] } = usePopularTags(50);
+  
+  // Search or get all articles based on filters
+  const hasFilters = searchQuery || selectedCategory || selectedTags.length > 0;
+  
+  const searchResults = useSearchArticles({
+    query: searchQuery || undefined,
+    category: selectedCategory || undefined,
+    tags: selectedTags.length > 0 ? selectedTags : undefined,
+    page: currentPage,
+    limit: pageSize,
+  });
 
+  const allArticlesResults = useArticles({
+    page: currentPage,
+    limit: pageSize,
+  });
+
+  // Use search results if we have filters, otherwise use all articles
+  const articlesQuery = hasFilters ? searchResults : allArticlesResults;
+  const { data: articlesData, isLoading } = articlesQuery;
+  
   const articles = articlesData?.data || [];
-  const publishedArticles = articles.filter(article => article.status === 'published');
-  const recentArticles = publishedArticles.slice(0, 8);
-  const allPublishedArticles = publishedArticles;
+  const pagination = articlesData?.pagination || { total: 0, page: 1, limit: pageSize, hasNext: false };
 
+  // Update URL when filters change
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (searchQuery) params.set('search', searchQuery);
+    if (selectedCategory) params.set('category', selectedCategory);
+    if (selectedTags.length > 0) params.set('tags', selectedTags.join(','));
+    if (currentPage > 1) params.set('page', currentPage.toString());
+
+    const newUrl = params.toString() ? `/articles?${params.toString()}` : '/articles';
+    router.replace(newUrl, { scroll: false });
+  }, [searchQuery, selectedCategory, selectedTags, currentPage, router]);
+
+  // Handle search
+  const handleSearch = (value: string) => {
+    setSearchQuery(value);
+    setCurrentPage(1);
+  };
+
+  // Handle category filter
+  const handleCategoryChange = (value: string) => {
+    setSelectedCategory(value);
+    setCurrentPage(1);
+  };
+
+  // Handle tag selection
+  const handleTagSelect = (tag: string) => {
+    if (!selectedTags.includes(tag)) {
+      setSelectedTags([...selectedTags, tag]);
+      setCurrentPage(1);
+    }
+  };
+
+  // Handle tag removal
+  const handleTagRemove = (tag: string) => {
+    setSelectedTags(selectedTags.filter(t => t !== tag));
+    setCurrentPage(1);
+  };
+
+  // Clear all filters
+  const clearAllFilters = () => {
+    setSearchQuery('');
+    setSelectedCategory('');
+    setSelectedTags([]);
+    setCurrentPage(1);
+  };
+
+  // Loading skeleton
   const LoadingSkeleton = () => (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-      {[...Array(8)].map((_, index) => (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      {[...Array(pageSize)].map((_, index) => (
         <div key={index} className="space-y-4">
           <Skeleton.Image className="w-full h-48 rounded-lg" />
           <div className="space-y-2">
@@ -36,183 +119,327 @@ export default function ArticlesPage() {
     </div>
   );
 
+  const hasActiveFilters = searchQuery || selectedCategory || selectedTags.length > 0;
+
   return (
-    <div className="min-h-screen bg-slate-900 overflow-x-hidden scroll-optimized">
+    <div className="min-h-screen bg-slate-900 overflow-x-hidden">
       <Navbar />
       
-      {/* Hero Section */}
-      <section className="relative bg-gradient-hero py-20 lg:py-32">
-        {/* Background elements */}
-        <div className="absolute inset-0 performance-optimized">
-          <div className="absolute top-1/4 left-1/4 w-48 h-48 bg-emerald-500/8 rounded-full blur-2xl"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-40 h-40 bg-red-500/8 rounded-full blur-2xl"></div>
-        </div>
+      {/* Main Content */}
+      <div className="bg-slate-900 py-8 lg:py-12">
+        <div className="max-w-[1252px] mx-auto px-4 sm:px-6 lg:px-8">
+          
+          {/* Page Header */}
+          <div className="mb-8">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4">
+              Articles
+            </h1>
+            <p className="text-lg text-slate-400 max-w-2xl">
+              Explore our collection of tutorials, guides, and insights about web development, JavaScript, React, and more.
+            </p>
+          </div>
 
-        <div className="relative max-w-[1252px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            {/* Badge */}
-            <div className="inline-flex items-center px-4 py-2 rounded-full glass-card border border-emerald-400/20 mb-8">
-              <span className="text-sm font-medium text-emerald-300">📚 Knowledge Hub</span>
+          {/* Filters Section */}
+          <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-slate-700/50 p-6 mb-8">
+            <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
+              
+              {/* Search Box */}
+              <div className="flex-1">
+                <Search
+                  placeholder="Search articles by title..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onSearch={handleSearch}
+                  size="large"
+                  style={{
+                    backgroundColor: 'rgba(51, 65, 85, 0.3)',
+                    borderColor: '#475569'
+                  }}
+                  styles={{
+                    input: {
+                      backgroundColor: 'transparent',
+                      color: '#f8fafc'
+                    }
+                  }}
+                />
+              </div>
+
+              {/* Category Filter */}
+              <div className="w-full lg:w-48">
+                <Select
+                  placeholder="Select Category"
+                  value={selectedCategory || undefined}
+                  onChange={handleCategoryChange}
+                  size="large"
+                  style={{ width: '100%' }}
+                  allowClear
+                  dropdownStyle={{
+                    backgroundColor: '#1e293b',
+                    border: '1px solid rgba(255, 255, 255, 0.1)'
+                  }}
+                >
+                  {categories.map(category => (
+                    <Option key={category.id} value={category.slug}>
+                      {category.name}
+                    </Option>
+                  ))}
+                </Select>
+              </div>
+
+              {/* Clear Filters Button */}
+              {hasActiveFilters && (
+                <Button
+                  icon={<ClearOutlined />}
+                  onClick={clearAllFilters}
+                  size="large"
+                  style={{
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    borderColor: 'rgba(239, 68, 68, 0.3)',
+                    color: '#f87171'
+                  }}
+                >
+                  Clear All
+                </Button>
+              )}
             </div>
 
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight tracking-[-0.02em] mb-6">
-              <span className="block text-white">All</span>
-              <span className="block bg-gradient-to-r from-emerald-400 via-cyan-400 to-red-400 bg-clip-text text-transparent">
-                Articles
-              </span>
-            </h1>
-            
-            <p className="text-xl sm:text-2xl text-slate-300 leading-relaxed max-w-3xl mx-auto">
-              Explore comprehensive tutorials, guides, and insights about web development, JavaScript, React, CSS and more.
-            </p>
+            {/* Popular Tags */}
+            <div className="mt-4">
+              <div className="flex items-center gap-2 mb-3">
+                <FilterOutlined className="text-slate-400" />
+                <span className="text-sm font-medium text-slate-300">Popular Tags:</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {popularTags.slice(0, 15).map(tag => (
+                  <Tag
+                    key={tag.id}
+                    className={`cursor-pointer transition-all duration-200 ${
+                      selectedTags.includes(tag.name)
+                        ? 'bg-blue-500/20 border-blue-400 text-blue-300'
+                        : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:bg-slate-600/50 hover:border-slate-500'
+                    }`}
+                    onClick={() => 
+                      selectedTags.includes(tag.name) 
+                        ? handleTagRemove(tag.name)
+                        : handleTagSelect(tag.name)
+                    }
+                  >
+                    {tag.name} {tag.usage_count && `(${tag.usage_count})`}
+                  </Tag>
+                ))}
+              </div>
+            </div>
 
-            {/* Stats */}
-            <div className="flex justify-center items-center gap-8 mt-8">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-white">
-                  {articlesLoading ? '...' : allPublishedArticles.length}
+            {/* Active Filters Display */}
+            {hasActiveFilters && (
+              <div className="mt-4 pt-4 border-t border-slate-700">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-sm font-medium text-slate-300">Active Filters:</span>
                 </div>
-                <div className="text-sm text-slate-400">Published Articles</div>
+                <div className="flex flex-wrap gap-2">
+                  {searchQuery && (
+                    <Tag
+                      closable
+                      onClose={() => setSearchQuery('')}
+                      className="bg-emerald-500/20 border-emerald-400 text-emerald-300"
+                    >
+                      Search: "{searchQuery}"
+                    </Tag>
+                  )}
+                  {selectedCategory && (
+                    <Tag
+                      closable
+                      onClose={() => setSelectedCategory('')}
+                      className="bg-purple-500/20 border-purple-400 text-purple-300"
+                    >
+                      Category: {categories.find(c => c.slug === selectedCategory)?.name || selectedCategory}
+                    </Tag>
+                  )}
+                  {selectedTags.map(tag => (
+                    <Tag
+                      key={tag}
+                      closable
+                      onClose={() => handleTagRemove(tag)}
+                      className="bg-blue-500/20 border-blue-400 text-blue-300"
+                    >
+                      Tag: {tag}
+                    </Tag>
+                  ))}
+                </div>
               </div>
-              <div className="w-px h-12 bg-slate-700"></div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-white">{categories.length}</div>
-                <div className="text-sm text-slate-400">Categories</div>
-              </div>
-              <div className="w-px h-12 bg-slate-700"></div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-white">50k+</div>
-                <div className="text-sm text-slate-400">Readers</div>
-              </div>
+            )}
+          </div>
+
+          {/* Results Summary */}
+          <div className="flex justify-between items-center mb-6">
+            <div className="text-slate-400">
+              {isLoading ? (
+                'Loading articles...'
+              ) : (
+                <>
+                  Showing {articles.length > 0 ? ((currentPage - 1) * pageSize + 1) : 0} - {Math.min(currentPage * pageSize, pagination.total)} of {pagination.total} articles
+                  {hasActiveFilters && ' (filtered)'}
+                </>
+              )}
+            </div>
+            
+            {/* Articles count badge */}
+            <div className="bg-slate-800/50 px-3 py-1 rounded-full">
+              <span className="text-sm font-medium text-slate-300">
+                {pagination.total} articles
+              </span>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* Articles Sections */}
-      <div className="bg-slate-900 relative performance-optimized" style={{ paddingTop: '80px', paddingBottom: '80px' }}>
-        <div className="space-y-20">
-          {/* Featured Articles */}
-          {!featuredLoading && featuredArticles.length > 0 && (
-            <Section title="Featured Articles" linkText="See All Featured" linkHref="/articles?filter=featured">
-              {featuredArticles.map((article, index) => (
-                <ArticleCard
-                  key={article.id}
-                  title={article.title || ''}
-                  author={article.author_name || 'DonOzOn'}
-                  date={article.published_at|| ''}
-                  readTime={`${article.reading_time || 5} min read`}
-                  imageUrl={article.featured_image_url || '/images/default-article.jpg'}
-                  slug={article.slug|| ''}
-                  isHovered={index === 0}
-                />
-              ))}
-            </Section>
-          )}
-
-          {/* Recent Articles */}
-          {!articlesLoading && recentArticles.length > 0 && (
-            <Section title="Recent Articles" linkText="Load More" linkHref="#loadmore">
-              {recentArticles.map((article) => (
-                <ArticleCard
-                  key={article.id}
-                  title={article.title}
-                  author={article.author_name || 'DonOzOn'}
-                  date={article.published_at}
-                  readTime={`${article.reading_time || 5} min read`}
-                  imageUrl={article.featured_image_url || '/images/default-article.jpg'}
-                  slug={article.slug}
-                />
-              ))}
-            </Section>
-          )}
-
-          {/* All Articles Grid */}
-          <section className="relative">
-            {/* Background elements */}
-            <div className="absolute inset-0">
-              <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-gradient-to-r from-cyan-500/5 to-blue-500/5 rounded-full blur-2xl"></div>
-              <div className="absolute bottom-1/4 right-1/4 w-40 h-40 bg-gradient-to-r from-purple-500/5 to-pink-500/5 rounded-full blur-2xl"></div>
+          {/* Articles Grid */}
+          {isLoading ? (
+            <LoadingSkeleton />
+          ) : articles.length === 0 ? (
+            <div className="text-center py-16">
+              <div className="w-24 h-24 mb-4 rounded-full bg-slate-800 flex items-center justify-center mx-auto">
+                <SearchOutlined className="text-3xl text-slate-600" />
+              </div>
+              <h3 className="text-xl font-semibold text-slate-300 mb-2">
+                {hasActiveFilters ? 'No articles found' : 'No articles yet'}
+              </h3>
+              <p className="text-slate-500 text-sm max-w-md mx-auto mb-4">
+                {hasActiveFilters 
+                  ? 'Try adjusting your search criteria or removing some filters.'
+                  : "We're working on adding great content. Check back soon!"
+                }
+              </p>
+              {hasActiveFilters && (
+                <Button 
+                  type="primary" 
+                  onClick={clearAllFilters}
+                  style={{
+                    background: 'linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%)',
+                    borderColor: 'transparent'
+                  }}
+                >
+                  Clear All Filters
+                </Button>
+              )}
             </div>
-
-            <div className="max-w-[1252px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-              {/* Section Header */}
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-12 gap-4">
-                <div className="flex items-center space-x-6">
-                  <h2 className="text-2xl sm:text-[32px] font-bold text-white leading-tight tracking-[-0.02em]">
-                    Complete Archive
-                  </h2>
-                  <div className="w-12 sm:w-20 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-500"></div>
-                </div>
-                
-                {/* Filter Buttons */}
-                <div className="flex flex-wrap gap-2">
-                  {['All', 'CSS', 'JavaScript', 'React', 'Featured'].map((filter) => (
-                    <button
-                      key={filter}
-                      className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-                        filter === 'All' 
-                          ? 'bg-gradient-to-r from-emerald-600 to-cyan-600 text-white' 
-                          : 'glass-card text-slate-300 hover:text-white hover:bg-white/10'
-                      }`}
-                    >
-                      {filter}
-                    </button>
-                  ))}
-                </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+                {articles.map((article, index) => (
+                  <ArticleCard
+                    key={article.id}
+                    title={article.title}
+                    author={article.author_name || 'DonOzOn'}
+                    date={article.published_at || article.created_at}
+                    readTime={`${article.reading_time || 5} min read`}
+                    imageUrl={article.featured_image_url || '/images/default-article.jpg'}
+                    slug={article.slug}
+                    isHovered={index % 8 === 3}
+                  />
+                ))}
               </div>
 
-              {/* Articles Grid */}
-              {articlesLoading ? (
-                <LoadingSkeleton />
-              ) : allPublishedArticles.length === 0 ? (
-                <div className="text-center py-16">
-                  <div className="w-24 h-24 mb-4 rounded-full bg-slate-800 flex items-center justify-center mx-auto">
-                    <svg className="w-12 h-12 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                  </div>
-                  <h3 className="text-lg font-semibold text-slate-300 mb-2">No Published Articles Yet</h3>
-                  <p className="text-slate-500 text-sm max-w-md mx-auto">
-                    We're working on adding great content. Check back soon for amazing articles!
-                  </p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-                  {allPublishedArticles.map((article, index) => (
-                    <ArticleCard
-                      key={article.id}
-                      title={article.title}
-                      author={article.author_name || 'DonOzOn'}
-                      date={article.published_at}
-                      readTime={`${article.reading_time || 5} min read`}
-                      imageUrl={article.featured_image_url || '/images/default-article.jpg'}
-                      slug={article.slug}
-                      isHovered={index % 8 === 3} // Add some variety
-                    />
-                  ))}
+              {/* Pagination */}
+              {pagination.total > pageSize && (
+                <div className="flex justify-center">
+                  <Pagination
+                    current={currentPage}
+                    total={pagination.total}
+                    pageSize={pageSize}
+                    onChange={(page) => setCurrentPage(page)}
+                    showSizeChanger={false}
+                    showQuickJumper
+                    showTotal={(total, range) => 
+                      `${range[0]}-${range[1]} of ${total} articles`
+                    }
+                    style={{
+                      color: '#cbd5e1'
+                    }}
+                  />
                 </div>
               )}
-
-              {/* Load More Button */}
-              {!articlesLoading && allPublishedArticles.length > 0 && (
-                <div className="flex justify-center mt-16">
-                  <button className="group relative px-8 py-4 glass-card rounded-xl font-semibold text-white border border-white/20 hover:border-emerald-400/40 transition-all duration-300 hover:bg-emerald-500/10">
-                    <span className="flex items-center justify-center gap-2">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                      </svg>
-                      Load More Articles
-                    </span>
-                  </button>
-                </div>
-              )}
-            </div>
-          </section>
+            </>
+          )}
         </div>
       </div>
 
       <Footer />
+
+      {/* Custom Styles */}
+      <style jsx global>{`
+        .ant-input {
+          background-color: rgba(51, 65, 85, 0.3) !important;
+          border-color: #475569 !important;
+          color: #f8fafc !important;
+        }
+
+        .ant-input::placeholder {
+          color: #94a3b8 !important;
+        }
+
+        .ant-input:focus,
+        .ant-input-focused {
+          border-color: #0ea5e9 !important;
+          box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2) !important;
+        }
+
+        .ant-select-selector {
+          background-color: rgba(51, 65, 85, 0.3) !important;
+          border-color: #475569 !important;
+          color: #f8fafc !important;
+        }
+
+        .ant-select-selection-placeholder {
+          color: #94a3b8 !important;
+        }
+
+        .ant-select-arrow {
+          color: #94a3b8 !important;
+        }
+
+        .ant-pagination .ant-pagination-item {
+          background: rgba(51, 65, 85, 0.3) !important;
+          border-color: #475569 !important;
+        }
+
+        .ant-pagination .ant-pagination-item a {
+          color: #cbd5e1 !important;
+        }
+
+        .ant-pagination .ant-pagination-item-active {
+          background: #0ea5e9 !important;
+          border-color: #0ea5e9 !important;
+        }
+
+        .ant-pagination .ant-pagination-item-active a {
+          color: #ffffff !important;
+        }
+
+        .ant-pagination .ant-pagination-prev,
+        .ant-pagination .ant-pagination-next {
+          color: #cbd5e1 !important;
+        }
+
+        .ant-pagination .ant-pagination-jump-prev,
+        .ant-pagination .ant-pagination-jump-next {
+          color: #cbd5e1 !important;
+        }
+
+        .ant-input-search .ant-input-group-addon {
+          background: rgba(51, 65, 85, 0.3) !important;
+          border-color: #475569 !important;
+        }
+
+        .ant-input-search .ant-btn {
+          background: transparent !important;
+          border-color: #475569 !important;
+          color: #94a3b8 !important;
+        }
+
+        .ant-input-search .ant-btn:hover {
+          color: #0ea5e9 !important;
+          border-color: #0ea5e9 !important;
+        }
+      `}</style>
     </div>
   );
 }

@@ -118,23 +118,16 @@ export class ArticleService {
     // Use admin API service instead of repository for client-side admin operations
     const result = await adminApiService.createArticle(articleData);
     
-    // Track image usage after article creation
-    if (result.data?.id && articleData.content) {
+    // Enhanced image tracking after article creation
+    if (result.data?.id) {
       try {
-        await imageManagementService.updateArticleImageUsage(
+        // Use the enhanced method that handles both orphaned images and usage tracking
+        const trackingResult = await imageManagementService.updateArticleImageUsageEnhanced(
           result.data.id, 
-          articleData.content
+          articleData.content || '',
+          articleData.featured_image_url
         );
-        console.log('✅ Image usage tracking updated for new article');
-        
-        // Track featured image separately if present
-        if (articleData.featured_image_url) {
-          await imageManagementService.trackFeaturedImage(
-            result.data.id,
-            articleData.featured_image_url
-          );
-          console.log('✅ Featured image tracked for new article');
-        }
+        console.log('✅ Enhanced image tracking completed for new article:', trackingResult);
       } catch (error) {
         console.warn('Failed to update image tracking for new article:', error);
         // Don't fail the article creation, just log the warning
@@ -148,53 +141,28 @@ export class ArticleService {
    * Update article (admin/author)
    */
   async updateArticle(id: string, updates: ArticleUpdate) {
-    // Get current article data to compare featured image changes
-    let currentFeaturedImage: string | null = null;
-    try {
-      const currentArticle = await this.getArticleById(id);
-      currentFeaturedImage = currentArticle?.featured_image_url || null;
-    } catch (error) {
-      console.warn('Could not fetch current article for featured image comparison:', error);
-    }
-
     // Use admin API service for client-side admin operations
     const result = await adminApiService.updateArticle(id, updates);
     
-    // Track image usage after article update
-    if (updates.content !== undefined) {
+    // Enhanced image tracking after article update
+    if (updates.content !== undefined || updates.featured_image_url !== undefined) {
       try {
-        await imageManagementService.updateArticleImageUsage(
+        // Get current content if not provided in updates
+        let finalContent = updates.content;
+        if (finalContent === undefined) {
+          const currentArticle = await this.getArticleById(id);
+          finalContent = currentArticle?.content || '';
+        }
+
+        // Use the enhanced method for comprehensive tracking
+        const trackingResult = await imageManagementService.updateArticleImageUsageEnhanced(
           id, 
-          updates.content
+          finalContent,
+          updates.featured_image_url
         );
-        console.log('✅ Image usage tracking updated for article:', id);
+        console.log('✅ Enhanced image tracking completed for updated article:', trackingResult);
       } catch (error) {
         console.warn('Failed to update image tracking for updated article:', error);
-        // Don't fail the article update, just log the warning
-      }
-    }
-
-    // Handle featured image changes (including deletion)
-    if (updates.featured_image_url !== undefined) {
-      try {
-        const newFeaturedImage = updates.featured_image_url;
-        
-        // Check if featured image was changed or removed
-        if (currentFeaturedImage && currentFeaturedImage !== newFeaturedImage) {
-          console.log(`🔄 Featured image changed from ${currentFeaturedImage} to ${newFeaturedImage || 'none'}`);
-        }
-
-        if (newFeaturedImage) {
-          // Track new featured image
-          await imageManagementService.trackFeaturedImage(id, newFeaturedImage);
-          console.log('✅ Featured image tracked for updated article');
-        } else {
-          // Clear featured image (will auto-delete if not used in content)
-          await imageManagementService.clearFeaturedImage(id);
-          console.log('✅ Featured image cleared for updated article');
-        }
-      } catch (error) {
-        console.warn('Failed to update featured image tracking:', error);
         // Don't fail the article update, just log the warning
       }
     }

@@ -58,7 +58,7 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center px-4">
+    <div className="admin-login min-h-screen bg-slate-900 flex items-center justify-center px-4">
       <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900"></div>
       
       {/* Background Elements */}
@@ -72,15 +72,20 @@ export default function AdminLoginPage() {
           <div className="w-16 h-16 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
             <UserOutlined className="text-2xl text-white" />
           </div>
-          <Title level={2} className="text-white mb-2">Admin Login</Title>
-          <Text className="text-slate-400">Sign in to manage your blog content</Text>
+          <Title level={2} style={{ color: '#f8fafc', marginBottom: '8px' }}>Admin Login</Title>
+          <Text style={{ color: '#94a3b8' }}>Sign in to manage your blog content</Text>
         </div>
 
         {error && (
           <Alert
             message={error}
             type="error"
-            className="mb-6 bg-red-900/20 border-red-700/30"
+            className="mb-6"
+            style={{
+              backgroundColor: 'rgba(153, 27, 27, 0.2)',
+              borderColor: 'rgba(185, 28, 28, 0.3)',
+              color: '#fca5a5'
+            }}
           />
         )}
 
@@ -90,26 +95,49 @@ export default function AdminLoginPage() {
           onFinish={handleLogin}
           size="large"
           layout="vertical"
+          requiredMark={false}
         >
           <Form.Item
             name="username"
+            label={<span className="text-slate-300 font-medium">Username</span>}
             rules={[{ required: true, message: 'Please enter your username!' }]}
           >
             <Input
               prefix={<UserOutlined className="text-slate-400" />}
               placeholder="Username"
-              className="bg-slate-700/50 border-slate-600 text-white placeholder-slate-400"
+              style={{
+                backgroundColor: 'rgba(51, 65, 85, 0.3)',
+                borderColor: '#475569',
+                color: '#f8fafc'
+              }}
+              styles={{
+                input: {
+                  backgroundColor: 'transparent !important',
+                  color: '#f8fafc !important'
+                }
+              }}
             />
           </Form.Item>
 
           <Form.Item
             name="password"
+            label={<span className="text-slate-300 font-medium">Password</span>}
             rules={[{ required: true, message: 'Please enter your password!' }]}
           >
             <Input.Password
               prefix={<LockOutlined className="text-slate-400" />}
               placeholder="Password"
-              className="bg-slate-700/50 border-slate-600 text-white placeholder-slate-400"
+              style={{
+                backgroundColor: 'rgba(51, 65, 85, 0.3)',
+                borderColor: '#475569',
+                color: '#f8fafc'
+              }}
+              styles={{
+                input: {
+                  backgroundColor: 'transparent !important',
+                  color: '#f8fafc !important'
+                }
+              }}
             />
           </Form.Item>
 
@@ -126,11 +154,103 @@ export default function AdminLoginPage() {
         </Form>
 
         <div className="text-center mt-6">
-          <Text className="text-slate-500 text-sm">
+          <Text style={{ color: '#64748b', fontSize: '14px' }}>
             Default credentials: admin / donozon2024
           </Text>
         </div>
       </Card>
+
+      {/* Custom Styles - Scoped to admin login page only */}
+      <style jsx>{`
+        .admin-login :global(.ant-form-item-label > label) {
+          color: #cbd5e1 !important;
+          font-weight: 500 !important;
+        }
+
+        .admin-login :global(.ant-input) {
+          background-color: rgba(51, 65, 85, 0.3) !important;
+          border-color: #475569 !important;
+          color: #f8fafc !important;
+        }
+
+        .admin-login :global(.ant-input::placeholder) {
+          color: #94a3b8 !important;
+        }
+
+        .admin-login :global(.ant-input:focus),
+        .admin-login :global(.ant-input-focused) {
+          background-color: rgba(51, 65, 85, 0.4) !important;
+          border-color: #0ea5e9 !important;
+          box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2) !important;
+          color: #f8fafc !important;
+        }
+
+        .admin-login :global(.ant-input-password) {
+          background-color: rgba(51, 65, 85, 0.3) !important;
+          border-color: #475569 !important;
+        }
+
+        .admin-login :global(.ant-input-password .ant-input) {
+          background-color: transparent !important;
+          color: #f8fafc !important;
+        }
+
+        .admin-login :global(.ant-input-password:focus-within),
+        .admin-login :global(.ant-input-password.ant-input-affix-wrapper-focused) {
+          background-color: rgba(51, 65, 85, 0.4) !important;
+          border-color: #0ea5e9 !important;
+          box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2) !important;
+        }
+
+        .admin-login :global(.ant-input-password .ant-input-suffix) {
+          color: #94a3b8 !important;
+        }
+
+        .admin-login :global(.ant-form-item-explain-error) {
+          color: #fca5a5 !important;
+          font-weight: 400 !important;
+        }
+
+        .admin-login :global(.ant-card) {
+          background: rgba(30, 41, 59, 0.8) !important;
+          border: 1px solid rgba(71, 85, 105, 0.5) !important;
+          backdrop-filter: blur(12px) !important;
+        }
+
+        .admin-login :global(.ant-btn-primary) {
+          background: linear-gradient(135deg, #f97316 0%, #dc2626 100%) !important;
+          border: none !important;
+          box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3) !important;
+          transition: all 0.3s ease !important;
+          color: #ffffff !important;
+          font-weight: 600 !important;
+        }
+
+        .admin-login :global(.ant-btn-primary:hover) {
+          background: linear-gradient(135deg, #ea580c 0%, #b91c1c 100%) !important;
+          transform: translateY(-1px) !important;
+          box-shadow: 0 6px 20px rgba(249, 115, 22, 0.4) !important;
+          color: #ffffff !important;
+        }
+
+        .admin-login :global(.ant-btn-primary:active) {
+          transform: translateY(0) !important;
+        }
+
+        .admin-login :global(.ant-input-prefix) {
+          color: #94a3b8 !important;
+        }
+
+        .admin-login :global(.ant-input:hover) {
+          border-color: #64748b !important;
+          background-color: rgba(51, 65, 85, 0.35) !important;
+        }
+
+        .admin-login :global(.ant-input-password:hover) {
+          border-color: #64748b !important;
+          background-color: rgba(51, 65, 85, 0.35) !important;
+        }
+      `}</style>
     </div>
   );
 }
