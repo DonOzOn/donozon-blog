@@ -140,9 +140,51 @@ const RichTextEditorWithImageKit: React.FC<RichTextEditorProps> = ({
       
       const content = editorRef.current.innerHTML;
       onChange(content);
+      
+      // Auto-delete functionality: Track image removal and trigger deletion
+      handleImageDeletion(content);
+      
       // Reset the flag after a small delay to prevent infinite loops
       setTimeout(() => setIsInternalUpdate(false), 10);
     }
+  };
+
+  // Track previous content to detect deleted images
+  const [previousContent, setPreviousContent] = useState(value);
+
+  const handleImageDeletion = async (newContent: string) => {
+    try {
+      if (!articleId || !previousContent) {
+        setPreviousContent(newContent);
+        return;
+      }
+
+      // Extract ImageKit URLs from previous and new content
+      const previousUrls = extractImageKitUrls(previousContent);
+      const currentUrls = extractImageKitUrls(newContent);
+      
+      // Find URLs that were removed
+      const removedUrls = previousUrls.filter(url => !currentUrls.includes(url));
+      
+      if (removedUrls.length > 0) {
+        console.log(`🗑️ Detected ${removedUrls.length} images removed from content:`, removedUrls);
+        
+        // Note: The actual deletion will be handled by the article save process
+        // through the image management service. This is just for logging.
+        // The deletion happens in updateArticleImageUsage when the article is saved.
+      }
+      
+      setPreviousContent(newContent);
+    } catch (error) {
+      console.error('Error tracking image deletion:', error);
+    }
+  };
+
+  // Helper function to extract ImageKit URLs
+  const extractImageKitUrls = (content: string): string[] => {
+    if (!content) return [];
+    const regex = /https:\/\/ik\.imagekit\.io\/[^"'\s)]+/g;
+    return content.match(regex) || [];
   };
 
   // Enhanced paste handler for ImageKit integration

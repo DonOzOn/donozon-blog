@@ -148,6 +148,15 @@ export class ArticleService {
    * Update article (admin/author)
    */
   async updateArticle(id: string, updates: ArticleUpdate) {
+    // Get current article data to compare featured image changes
+    let currentFeaturedImage: string | null = null;
+    try {
+      const currentArticle = await this.getArticleById(id);
+      currentFeaturedImage = currentArticle?.featured_image_url || null;
+    } catch (error) {
+      console.warn('Could not fetch current article for featured image comparison:', error);
+    }
+
     // Use admin API service for client-side admin operations
     const result = await adminApiService.updateArticle(id, updates);
     
@@ -159,17 +168,33 @@ export class ArticleService {
           updates.content
         );
         console.log('✅ Image usage tracking updated for article:', id);
-        
-        // Track featured image separately if present
-        if (updates.featured_image_url) {
-          await imageManagementService.trackFeaturedImage(
-            id,
-            updates.featured_image_url
-          );
-          console.log('✅ Featured image tracked for updated article');
-        }
       } catch (error) {
         console.warn('Failed to update image tracking for updated article:', error);
+        // Don't fail the article update, just log the warning
+      }
+    }
+
+    // Handle featured image changes (including deletion)
+    if (updates.featured_image_url !== undefined) {
+      try {
+        const newFeaturedImage = updates.featured_image_url;
+        
+        // Check if featured image was changed or removed
+        if (currentFeaturedImage && currentFeaturedImage !== newFeaturedImage) {
+          console.log(`🔄 Featured image changed from ${currentFeaturedImage} to ${newFeaturedImage || 'none'}`);
+        }
+
+        if (newFeaturedImage) {
+          // Track new featured image
+          await imageManagementService.trackFeaturedImage(id, newFeaturedImage);
+          console.log('✅ Featured image tracked for updated article');
+        } else {
+          // Clear featured image (will auto-delete if not used in content)
+          await imageManagementService.clearFeaturedImage(id);
+          console.log('✅ Featured image cleared for updated article');
+        }
+      } catch (error) {
+        console.warn('Failed to update featured image tracking:', error);
         // Don't fail the article update, just log the warning
       }
     }

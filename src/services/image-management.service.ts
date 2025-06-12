@@ -33,9 +33,27 @@ export interface ImageStats {
 export class ImageManagementService {
   /**
    * Update image usage tracking when article content changes
+   * Now automatically deletes unused images from ImageKit
    */
   async updateArticleImageUsage(articleId: string, content: string): Promise<number> {
     try {
+      // Get current images before updating
+      const currentImages = await this.getArticleImages(articleId);
+      const currentImageUrls = currentImages.map(img => img.imagekit_url);
+      
+      // Extract new images from content
+      const newImageUrls = this.extractImageKitUrls(content);
+      
+      // Find images that are being removed (existed before but not in new content)
+      const removedImages = currentImages.filter(img => 
+        img.is_used && !newImageUrls.includes(img.imagekit_url)
+      );
+
+      console.log(`📷 Image tracking for article ${articleId}:`);
+      console.log(`  - Current images: ${currentImageUrls.length}`);
+      console.log(`  - New content images: ${newImageUrls.length}`);
+      console.log(`  - Images being removed: ${removedImages.length}`);
+
       // Call the database function to update image usage
       const { data, error } = await supabase
         .rpc('update_article_image_usage', {
@@ -47,10 +65,16 @@ export class ImageManagementService {
         // Check if function doesn't exist (migration not run)
         if (error.message?.includes('function') || error.message?.includes('does not exist')) {
           console.warn('Image management functions not installed. Please run the database migration.');
-          return 0; // Return gracefully instead of throwing
+          // Fall back to manual tracking
+          return await this.manualUpdateImageUsage(articleId, content, removedImages);
         }
         console.error('Error updating image usage:', error);
         throw error;
+      }
+
+      // Auto-delete removed images from ImageKit
+      if (removedImages.length > 0) {
+        await this.autoDeleteRemovedImages(removedImages);
       }
 
       return data || 0;
@@ -408,11 +432,23 @@ export class ImageManagementService {
   }
 
   /**
-   * Track featured image usage
+   * Track featured image usage and auto-delete previous featured image if changed
    */
   async trackFeaturedImage(articleId: string, imageUrl: string): Promise<void> {
     try {
-      if (!imageUrl) return;
+      if (!imageUrl) {
+        // If no image URL provided, delete current featured image
+        await this.clearFeaturedImage(articleId);
+        return;
+      }
+
+      // Get current featured image before changing
+      const { data: currentFeaturedImages } = await supabase
+        .from('article_images')
+        .select('*')
+        .eq('article_id', articleId)
+        .eq('is_featured_image', true)
+        .neq('imagekit_url', imageUrl); // Don't include the new image
 
       // Mark existing featured images as not featured
       await supabase
@@ -434,9 +470,51 @@ export class ImageManagementService {
 
       if (error) {
         console.error('Error tracking featured image:', error);
+        return;
+      }
+
+      // Auto-delete previous featured images if they're not used in content
+      if (currentFeaturedImages && currentFeaturedImages.length > 0) {
+        const imagesToDelete = currentFeaturedImages.filter(img => !img.is_used);
+        if (imagesToDelete.length > 0) {
+          console.log(`🗑️ Auto-deleting ${imagesToDelete.length} replaced featured images...`);
+          await this.autoDeleteRemovedImages(imagesToDelete);
+        }
       }
     } catch (error) {
       console.error('Failed to track featured image:', error);
+    }
+  }
+
+  /**
+   * Clear featured image and optionally delete it if not used in content
+   */
+  async clearFeaturedImage(articleId: string): Promise<void> {
+    try {
+      // Get current featured images
+      const { data: featuredImages } = await supabase
+        .from('article_images')
+        .select('*')
+        .eq('article_id', articleId)
+        .eq('is_featured_image', true);
+
+      // Mark as not featured
+      await supabase
+        .from('article_images')
+        .update({ is_featured_image: false })
+        .eq('article_id', articleId)
+        .eq('is_featured_image', true);
+
+      // Auto-delete if not used in content
+      if (featuredImages && featuredImages.length > 0) {
+        const imagesToDelete = featuredImages.filter(img => !img.is_used);
+        if (imagesToDelete.length > 0) {
+          console.log(`🗑️ Auto-deleting ${imagesToDelete.length} cleared featured images...`);
+          await this.autoDeleteRemovedImages(imagesToDelete);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to clear featured image:', error);
     }
   }
 
@@ -487,6 +565,83 @@ export class ImageManagementService {
       console.error('Failed to adopt orphaned images:', error);
       throw error;
     }
+  }
+
+  /**
+   * Manual image usage tracking when database function is not available
+   */
+  private async manualUpdateImageUsage(articleId: string, content: string, removedImages: ArticleImage[]): Promise<number> {
+    try {
+      const newImageUrls = this.extractImageKitUrls(content);
+      
+      // Mark all images as unused first
+      await supabase
+        .from('article_images')
+        .update({ is_used: false })
+        .eq('article_id', articleId);
+
+      // Mark current images as used
+      if (newImageUrls.length > 0) {
+        await supabase
+          .from('article_images')
+          .update({ 
+            is_used: true,
+            marked_for_deletion_at: null 
+          })
+          .eq('article_id', articleId)
+          .in('imagekit_url', newImageUrls);
+      }
+
+      // Auto-delete removed images
+      if (removedImages.length > 0) {
+        await this.autoDeleteRemovedImages(removedImages);
+      }
+
+      return newImageUrls.length;
+    } catch (error) {
+      console.error('Manual image usage update failed:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Automatically delete removed images from ImageKit and mark as deleted
+   */
+  private async autoDeleteRemovedImages(removedImages: ArticleImage[]): Promise<void> {
+    console.log(`🗑️ Auto-deleting ${removedImages.length} removed images from ImageKit...`);
+    
+    for (const image of removedImages) {
+      try {
+        // Delete from ImageKit
+        console.log(`  - Deleting ${image.file_name} (${image.imagekit_file_id}) from ImageKit`);
+        await deleteImageFromImageKit(image.imagekit_file_id);
+
+        // Mark as deleted in database
+        await supabase
+          .from('article_images')
+          .update({ 
+            deleted_at: new Date().toISOString(),
+            is_used: false 
+          })
+          .eq('id', image.id);
+
+        console.log(`  ✅ Successfully deleted ${image.file_name} from ImageKit`);
+        
+      } catch (error) {
+        console.error(`  ❌ Failed to delete ${image.file_name} from ImageKit:`, error);
+        
+        // Still mark as unused in database even if ImageKit deletion failed
+        await supabase
+          .from('article_images')
+          .update({ 
+            is_used: false,
+            marked_for_deletion_at: new Date().toISOString()
+          })
+          .eq('id', image.id);
+      }
+    }
+    
+    console.log('✅ Auto-deletion of removed images completed');
   }
 
   /**
