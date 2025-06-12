@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Tag React Query Hooks - Supabase Implementation
  * Custom hooks for tag data fetching with React Query
@@ -5,7 +6,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { tagService } from '@/services/tag.service';
-import type { Tag, TagInsert } from '@/types/database';
+import type {  TagInsert } from '@/types/database';
 
 // Query keys
 export const tagKeys = {

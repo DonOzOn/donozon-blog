@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Simple Debug Component for Admin Dashboard
  * Displays connection status and basic stats

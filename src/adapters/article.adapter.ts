@@ -41,6 +41,7 @@ export const apiArticlesToComponents = transformPublishedArticles;
 /**
  * Transform component Article to Supabase ArticleInsert format
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const transformToArticleInsert = (article: ComponentArticle): any => {
   return {
     title: article.title,

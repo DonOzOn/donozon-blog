@@ -22,7 +22,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Admin credentials for development
 const ADMIN_EMAIL = 'admin@donozon.com';
-const ADMIN_PASSWORD = 'donozon2024';
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -54,14 +53,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // For development, sign up the admin user if they don't exist
       if (email === ADMIN_EMAIL) {
         // First try to sign in
-        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        const { error: signInError } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
 
         if (signInError && signInError.message.includes('Invalid login credentials')) {
           // If sign in fails, try to sign up
-          const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+          const { error: signUpError } = await supabase.auth.signUp({
             email,
             password,
             options: {
@@ -87,7 +86,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
 
       // For non-admin emails, use regular sign in
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
@@ -97,7 +96,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
 
       return { success: true };
-    } catch (error) {
+    } catch {
       return { success: false, error: 'An unexpected error occurred' };
     }
   };

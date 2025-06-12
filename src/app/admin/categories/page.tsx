@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -30,7 +31,6 @@ import {
 } from '@/hooks/useCategories';
 import AdminLayout from '@/components/AdminLayout';
 import AdminCard from '@/components/AdminCard';
-import Link from 'next/link';
 import type { ColumnsType } from 'antd/es/table';
 import type { Category, CategoryInsert } from '@/types/database';
 
@@ -114,7 +114,7 @@ export default function CategoriesManagePage() {
       await deleteCategoryMutation.mutateAsync(id);
       message.success('Category deleted successfully');
       refetch();
-    } catch (error) {
+    } catch {
       message.error('Failed to delete category');
     }
   };

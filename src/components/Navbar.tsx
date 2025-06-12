@@ -126,7 +126,7 @@ export const Navbar = () => {
                 <div className="search-dropdown absolute top-full left-0 right-0 mt-2 bg-slate-800 border border-white/10 rounded-xl shadow-2xl z-50 max-h-[400px] overflow-y-auto">
                   <div className="p-4">
                     <div className="text-slate-400 text-sm mb-3">
-                      Search results for "{searchQuery}"
+                      Search results for &quot;{searchQuery}&quot;
                     </div>
                     
                     {/* Mock search results - replace with actual search */}
@@ -180,7 +180,7 @@ export const Navbar = () => {
                             }}
                           >
                             <div className="text-emerald-400 group-hover:text-emerald-300 transition-colors font-medium text-sm">
-                              View all results for "{searchQuery}"
+                              View all results for &quot;{searchQuery}&quot;
                             </div>
                           </Link>
                         </div>

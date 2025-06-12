@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * Article Service - Supabase Implementation
  * Business logic layer for article operations

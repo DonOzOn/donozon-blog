@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import Image from 'next/image';
 
 import { Footer } from '@/components/Footer';
 import { Navbar } from '@/components/Navbar';
@@ -20,14 +19,14 @@ export default function AboutPage() {
         <div className="relative max-w-[1252px] mx-auto px-4 sm:px-6 lg:px-8">
           {/* Introduction */}
           <div className="glass-card rounded-3xl p-8 lg:p-12 mb-12">
-            <h2 className="text-3xl font-bold text-white mb-6">Hello, I'm Dastin Darmawan</h2>
+            <h2 className="text-3xl font-bold text-white mb-6">Hello, I&apos;m Dastin Darmawan</h2>
             <div className="space-y-6 text-lg text-slate-300 leading-relaxed">
               <p>
                 I love sharing my knowledge about web development, programming, and digital technologies through this blog.
                 My passion lies in crafting clean code by day and capturing perfect shots by night.
               </p>
               <p>
-                My journey in web development started several years ago, and since then I've been exploring various 
+                My journey in web development started several years ago, and since then I&apos;ve been exploring various 
                 technologies including JavaScript, React, CSS, and many more. I believe in learning by doing and 
                 sharing knowledge with the community.
               </p>

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { ReactNode, useState, useEffect } from 'react';
@@ -21,7 +22,7 @@ import '@/styles/admin.css';
 
 interface AdminLayoutProps {
   children: ReactNode;
-  title?: string;
+  title?: any;
   description?: string;
 }
 

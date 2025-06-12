@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, Row, Col, Statistic, Button } from 'antd';
+import { Card, Row, Col, Statistic } from 'antd';
 import { 
   FileTextOutlined,
   TagsOutlined,

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -10,9 +11,7 @@ import {
   Tag, 
   message,
   Input,
-  Select,
-  Card
-} from 'antd';
+  Select} from 'antd';
 import { 
   PlusOutlined,
   EditOutlined,
@@ -104,7 +103,7 @@ export default function ArticlesManagePage() {
       await deleteArticleMutation.mutateAsync(id);
       message.success('Article deleted successfully');
       refetch();
-    } catch (error) {
+    } catch  {
       message.error('Failed to delete article');
     }
   };
@@ -297,7 +296,7 @@ export default function ArticlesManagePage() {
                   dropdown: {
                     backgroundColor: '#1e293b',
                     border: '1px solid rgba(255, 255, 255, 0.1)'
-                  }
+                  } 
                 }}
               >
                 {categories.map((category: any) => (

@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase-admin';
 import { tagRepository } from '@/repositories/tag.repository';
 import type { TagInsert } from '@/types/database';
 

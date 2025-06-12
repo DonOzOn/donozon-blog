@@ -2,7 +2,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeftOutlined, ClockCircleOutlined, EyeOutlined, TagOutlined, ShareAltOutlined, FacebookOutlined, TwitterOutlined, LinkedinOutlined } from '@ant-design/icons';
-import { Button, Tag } from 'antd';
 
 import { Footer } from '@/components/Footer';
 import { Navbar } from '@/components/Navbar';

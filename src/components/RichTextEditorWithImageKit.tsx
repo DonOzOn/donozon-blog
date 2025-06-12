@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import React, { useRef, useEffect, useState } from 'react';
@@ -15,7 +16,7 @@ import {
   FileImageOutlined,
   LoadingOutlined,
 } from '@ant-design/icons';
-import { uploadImageViaAPI, deleteImageViaAPI, isImageKitUrl } from '@/lib/imagekit';
+import { uploadImageViaAPI } from '@/lib/imagekit';
 
 interface RichTextEditorProps {
   value?: string;

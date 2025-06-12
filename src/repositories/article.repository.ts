@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * Article Repository - Supabase Implementation
  * Handles all article-related database operations
@@ -415,6 +417,10 @@ export class ArticleRepository {
    */
   async updateArticle(id: string, updates: ArticleUpdate): Promise<Article> {
     // Use admin client to bypass RLS for article updates
+    if (!supabaseAdmin) {
+      throw new Error('Admin client not available - SUPABASE_SERVICE_ROLE_KEY is missing from environment variables');
+    }
+
     const { data, error } = await supabaseAdmin
       .from('articles')
       .update(updates)
@@ -431,6 +437,10 @@ export class ArticleRepository {
    */
   async deleteArticle(id: string): Promise<void> {
     // Use admin client to bypass RLS for article deletion
+    if (!supabaseAdmin) {
+      throw new Error('Admin client not available - SUPABASE_SERVICE_ROLE_KEY is missing from environment variables');
+    }
+
     const { error } = await supabaseAdmin
       .from('articles')
       .delete()

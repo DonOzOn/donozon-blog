@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { useEffect, useState } from 'react';
+import { JSXElementConstructor, ReactElement, ReactNode, ReactPortal, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
   Form, 
@@ -9,7 +10,6 @@ import {
   Select, 
   Switch, 
   message,
-  Typography,
   Row,
   Col,
   Avatar,
@@ -25,7 +25,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { useCreateArticle } from '@/hooks/useArticles';
 import { useCategories } from '@/hooks/useCategories';
-import { useTags, useSearchTags } from '@/hooks/useTags';
+import { useTags } from '@/hooks/useTags';
 import RichTextEditorWithImageKit from '@/components/RichTextEditorWithImageKit';
 import AdminLayout from '@/components/AdminLayout';
 import AdminCard from '@/components/AdminCard';
@@ -33,7 +33,6 @@ import ImageUploadWithImageKit from '@/components/ImageUploadWithImageKit';
 import { imageManagementService } from '@/services/image-management.service';
 import Link from 'next/link';
 
-const { Text } = Typography;
 const { TextArea } = Input;
 
 interface ArticleForm {
@@ -415,7 +414,7 @@ export default function NewArticlePage() {
                     border: '1px solid rgba(255, 255, 255, 0.1)'
                   }}
                 >
-                  {categories.map(category => (
+                  {categories.map((category: { id: any; name: string | number | bigint | boolean | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<string | number | bigint | boolean | ReactPortal | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | null | undefined; }) => (
                     <Select.Option key={category.id} value={category.id}>
                       {category.name}
                     </Select.Option>

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from 'next/server';
 
 export async function GET() {
@@ -26,7 +27,7 @@ export async function GET() {
         is_service_role: payload.role === 'service_role',
         key_length: serviceKey.length
       };
-    } catch (error) {
+    } catch {
       envCheck.service_key_details = {
         error: 'Invalid JWT format',
         raw_length: process.env.SUPABASE_SERVICE_ROLE_KEY.length

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeftOutlined, TagOutlined } from '@ant-design/icons';
@@ -172,7 +173,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
               </div>
               <h3 className="text-2xl font-bold text-white mb-4">No Articles Found</h3>
               <p className="text-slate-400 text-lg mb-8 max-w-md mx-auto">
-                We haven't published any {categoryName.toLowerCase()} articles yet, but we're working on it!
+                We haven&apos;t published any {categoryName.toLowerCase()} articles yet, but we&apos;re working on it!
               </p>
               <Link 
                 href="/articles"

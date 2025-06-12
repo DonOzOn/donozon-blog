@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { useEffect, useState } from 'react';
+import { JSXElementConstructor, ReactElement, ReactNode, ReactPortal, useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { 
   Form, 
@@ -9,7 +10,6 @@ import {
   Select, 
   Switch, 
   message,
-  Typography,
   Row,
   Col,
   Avatar,
@@ -32,9 +32,7 @@ import AdminLayout from '@/components/AdminLayout';
 import AdminCard from '@/components/AdminCard';
 import ImageUploadWithImageKit from '@/components/ImageUploadWithImageKit';
 import Link from 'next/link';
-import type { Article } from '@/types/database';
 
-const { Text } = Typography;
 const { TextArea } = Input;
 
 interface ArticleForm {
@@ -152,8 +150,8 @@ export default function EditArticlePage() {
         excerpt: values.excerpt,
         content: values.content,
         category_id: values.category_id || null,
-        featured_image_url: currentImageUrl || null,
-        featured_image_alt: currentAltText || null,
+        featured_image_url: currentImageUrl || undefined,
+        featured_image_alt: currentAltText || undefined,
         meta_title: values.meta_title || null,
         meta_description: values.meta_description || null,
         meta_keywords: values.meta_keywords || null,
@@ -204,8 +202,8 @@ export default function EditArticlePage() {
     try {
       // Sync current image state with form before validation
       form.setFieldsValue({
-        featured_image_url: currentImageUrl || null,
-        featured_image_alt: currentAltText || null,
+        featured_image_url: currentImageUrl || undefined,
+        featured_image_alt: currentAltText || undefined,
       });
       
       const values = await form.validateFields();
@@ -219,8 +217,8 @@ export default function EditArticlePage() {
     try {
       // Sync current image state with form before validation
       form.setFieldsValue({
-        featured_image_url: currentImageUrl || null,
-        featured_image_alt: currentAltText || null,
+        featured_image_url: currentImageUrl || undefined,
+        featured_image_alt: currentAltText || undefined,
       });
       
       const values = await form.validateFields();
@@ -422,8 +420,8 @@ export default function EditArticlePage() {
                     border: '1px solid rgba(255, 255, 255, 0.1)'
                   }}
                 >
-                  {categories.map(category => (
-                    <Select.Option key={category.id} value={category.id}>
+                  {categories.map((category: { id: any; name: string | number | bigint | boolean | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<string | number | bigint | boolean | ReactPortal | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | null | undefined; }) => (
+                    <Select.Option key={category.id.toString()} value={category.id}>
                       {category.name}
                     </Select.Option>
                   ))}

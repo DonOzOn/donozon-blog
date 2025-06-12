@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import Link from 'next/link';
 
 import { Footer } from '@/components/Footer';
@@ -102,8 +103,6 @@ export default function CategoriesPage() {
       description: 'Outdoor adventures, sports, and recreational activities'
     },
   ];
-
-  const totalArticles = categories.reduce((sum, cat) => sum + cat.count, 0);
 
   return (
     <div className="min-h-screen bg-slate-900 overflow-x-hidden scroll-optimized">

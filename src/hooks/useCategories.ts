@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Category React Query Hooks - Supabase Implementation
  * Custom hooks for category data fetching with React Query
@@ -5,7 +6,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { categoryService } from '@/services/category.service';
-import type { Category, CategoryInsert } from '@/types/database';
+import type { CategoryInsert } from '@/types/database';
 
 // Query keys
 export const categoryKeys = {

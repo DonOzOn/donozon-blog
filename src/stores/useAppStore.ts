@@ -74,7 +74,7 @@ const initialPreferences = {
 
 export const useAppStore = create<AppState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       // Theme
       theme: {
         mode: 'dark',

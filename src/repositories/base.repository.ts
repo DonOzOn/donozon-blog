@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Base Repository
  * Generic repository with common CRUD operations
  */
 
 import { httpGet, httpPost, httpPut, httpPatch, httpDelete } from '@/lib/http-client';
-import type { ApiResponse, PaginatedResponse } from '@/types/api';
+import type {  PaginatedResponse } from '@/types/api';
 
 export interface FindOptions {
   page?: number;

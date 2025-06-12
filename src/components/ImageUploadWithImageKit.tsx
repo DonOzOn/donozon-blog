@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -11,16 +12,6 @@ interface ImageUploadProps {
   currentAltText?: string;
   className?: string;
   articleId?: string; // For tracking images per article
-}
-
-interface UploadedImageData {
-  url: string;
-  fileId: string;
-  name: string;
-  size: number;
-  fileName: string;
-  folder: string;
-  altText: string | null;
 }
 
 export default function ImageUploadWithImageKit({ 

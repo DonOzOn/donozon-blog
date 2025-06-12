@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { supabase } from '@/lib/supabase';
 
 export class AutoImageSetup {
@@ -18,7 +18,7 @@ export class AutoImageSetup {
     
     try {
       // Test if article_images table exists
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('article_images')
         .select('id')
         .limit(1);
@@ -44,7 +44,7 @@ export class AutoImageSetup {
       console.warn('⚠️ Image management not available:', error.message);
       return false;
       
-    } catch (error) {
+    } catch (error: any) {
       console.warn('⚠️ Could not check image management setup:', error.message);
       return false;
     }
@@ -95,7 +95,7 @@ export class AutoImageSetup {
       
       return true;
       
-    } catch (error) {
+    } catch {
       console.log('📋 Auto-setup not available - manual migration required');
       return false;
     }
@@ -145,7 +145,7 @@ export class AutoImageSetup {
       
       console.log(`📷 Tracked ${imageUrls.size} images for article`);
       
-    } catch (error) {
+    } catch (error: any) {
       console.warn('⚠️ Failed to track article images:', error.message);
     }
   }
@@ -177,7 +177,7 @@ export class AutoImageSetup {
       
       // Extract filename and file ID
       const urlParts = imageUrl.split('/');
-      let fileName = urlParts[urlParts.length - 1].split('?')[0];
+      const fileName = urlParts[urlParts.length - 1].split('?')[0];
       let fileId = '';
       
       if (imageUrl.includes('imagekit.io')) {
@@ -201,7 +201,7 @@ export class AutoImageSetup {
           created_at: new Date().toISOString()
         });
         
-    } catch (error) {
+    } catch (error: any) {
       console.warn(`⚠️ Failed to track image ${imageUrl}:`, error.message);
     }
   }
@@ -239,7 +239,7 @@ export class AutoImageSetup {
         .eq('is_used', false)
         .is('marked_for_deletion_at', null);
         
-    } catch (error) {
+    } catch (error: any) {
       console.warn('⚠️ Failed to mark unused images:', error.message);
     }
   }

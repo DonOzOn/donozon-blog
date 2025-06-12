@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Article React Query Hooks - Supabase Implementation
  * Custom hooks for article data fetching with React Query
@@ -5,7 +6,6 @@
 
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 import { articleService } from '@/services/article.service';
-import type { PublishedArticle } from '@/types/database';
 
 // Query keys
 export const articleKeys = {

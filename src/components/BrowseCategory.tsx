@@ -13,7 +13,7 @@ interface CategoryCardProps {
   iconBg: string;
 }
 
-const CategoryCard = ({ name, count, icon, href, color, iconBg }: CategoryCardProps) => (
+const CategoryCard = ({ name, count, icon, href, iconBg }: CategoryCardProps) => (
   <Link href={href} className="focus:outline-none">
     <div className="group glass-card rounded-2xl hover:bg-white/10 transition-all duration-500 cursor-pointer border border-white/10 hover:border-white/20 h-[260px] sm:h-[280px] lg:h-[300px] flex flex-col focus:outline-none relative overflow-hidden">
       {/* Gradient overlay on hover */}

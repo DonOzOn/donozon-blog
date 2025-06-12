@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -37,8 +38,8 @@ export default function EnvCheckPage() {
         <ol className="list-decimal list-inside space-y-1 text-sm">
           <li>Open Developer Tools (F12)</li>
           <li>Go to Console tab</li>
-          <li>Look for "🔧 Supabase Configuration Check" messages</li>
-          <li>Check if all environment variables show "Set"</li>
+          <li>Look for &quot;🔧 Supabase Configuration Check&quot; messages</li>
+          <li>Check if all environment variables show &quot;Set&quot;</li>
         </ol>
       </div>
     </div>

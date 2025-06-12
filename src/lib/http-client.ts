@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * HTTP Client Configuration
  * Centralized HTTP client with interceptors and error handling

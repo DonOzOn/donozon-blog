@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import Link from 'next/link';
 
 import { AppConfig } from '@/utils/AppConfig';
 
@@ -35,12 +36,12 @@ const BaseTemplate = (props: IBaseTemplateProps) => (
 
       <footer className="border-t border-gray-300 py-8 text-center text-sm">
         © Copyright {new Date().getFullYear()} {AppConfig.title}. Made with{' '}
-        <span role="img" aria-label="Love">
+        <span role="img" aria-label="Love">♥</span>
           ♥
-        </span>{' '}
-        by <a href="/">{AppConfig.author}</a>
+        by <Link href="/">{AppConfig.author}</Link>
+        by <Link href="/">{AppConfig.author}</Link>
         {' - '}
-        <a href="/">Powered by Next.js and Tailwind CSS</a>
+        <Link href="/">Powered by Next.js and Tailwind CSS</Link>
       </footer>
     </div>
   </div>

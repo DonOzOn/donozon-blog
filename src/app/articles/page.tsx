@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, JSXElementConstructor, Key, ReactElement, ReactNode, ReactPortal } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { ArticleCard } from '@/components/ArticleCard';
 import { Footer } from '@/components/Footer';
@@ -178,7 +179,7 @@ export default function ArticlesPage() {
                     border: '1px solid rgba(255, 255, 255, 0.1)'
                   }}
                 >
-                  {categories.map(category => (
+                  {categories.map((category: { id: Key | null | undefined; slug: unknown; name: string | number | bigint | boolean | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<string | number | bigint | boolean | ReactPortal | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | null | undefined; }) => (
                     <Option key={category.id} value={category.slug}>
                       {category.name}
                     </Option>
@@ -243,7 +244,7 @@ export default function ArticlesPage() {
                       onClose={() => setSearchQuery('')}
                       className="bg-emerald-500/20 border-emerald-400 text-emerald-300"
                     >
-                      Search: "{searchQuery}"
+                      Search: &quot;{searchQuery}&quot;
                     </Tag>
                   )}
                   {selectedCategory && (
@@ -252,7 +253,7 @@ export default function ArticlesPage() {
                       onClose={() => setSelectedCategory('')}
                       className="bg-purple-500/20 border-purple-400 text-purple-300"
                     >
-                      Category: {categories.find(c => c.slug === selectedCategory)?.name || selectedCategory}
+                      Category: {categories.find((c: { slug: string; }) => c.slug === selectedCategory)?.name || selectedCategory}
                     </Tag>
                   )}
                   {selectedTags.map(tag => (

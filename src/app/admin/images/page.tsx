@@ -1,8 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState, useEffect } from 'react';
 import { 
-  Card, 
   Table, 
   Button, 
   Tag, 
@@ -24,10 +24,8 @@ import {
 import { 
   DeleteOutlined,
   ReloadOutlined,
-  ExclamationCircleOutlined,
   FileImageOutlined,
   CloudDownloadOutlined,
-  RestOutlined,
   PlayCircleOutlined,
   EyeOutlined
 } from '@ant-design/icons';
@@ -36,7 +34,7 @@ import AdminCard from '@/components/AdminCard';
 import { imageManagementService, type ArticleImage } from '@/services/image-management.service';
 import { formatDistanceToNow } from 'date-fns';
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 const { Search } = Input;
 
 interface ImageStats {
@@ -61,7 +59,7 @@ export default function AdminImagesPage() {
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState<'all' | 'used' | 'unused' | 'pending'>('all');
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
+  const [selectedRowKeys, setSelectedRowKeys] = useState<any[]>([]);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [cleanupLoading, setCleanupLoading] = useState(false);
   const [autoCleanup, setAutoCleanup] = useState(false);

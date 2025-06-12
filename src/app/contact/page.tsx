@@ -30,7 +30,7 @@ export default function ContactPage() {
                   <div>
                     <h3 className="font-semibold text-white text-lg mb-1">Email</h3>
                     <p className="text-slate-300 mb-2">{AppConfig.email}</p>
-                    <p className="text-slate-400 text-sm">I'll get back to you within 24 hours</p>
+                    <p className="text-slate-400 text-sm">I&apos;ll get back to you within 24 hours</p>
                   </div>
                 </div>
 
@@ -176,7 +176,7 @@ export default function ContactPage() {
                   </button>
 
                   <p className="text-sm text-slate-400 text-center">
-                    I'll get back to you within 24 hours. Your information is kept private and secure.
+                    I&apos;ll get back to you within 24 hours. Your information is kept private and secure.
                   </p>
                 </form>
               </div>

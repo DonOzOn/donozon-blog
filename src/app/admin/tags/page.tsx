@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -116,7 +117,7 @@ export default function TagsManagePage() {
       await deleteTagMutation.mutateAsync(id);
       message.success('Tag deleted successfully');
       refetch();
-    } catch (error) {
+    } catch {
       message.error('Failed to delete tag');
     }
   };

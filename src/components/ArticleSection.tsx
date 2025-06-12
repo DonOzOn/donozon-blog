@@ -3,7 +3,7 @@
 import { useFeaturedArticles, useArticlesByCategory } from '@/hooks/useArticles';
 import { ArticleCard } from '@/components/ArticleCard';
 import { Section } from '@/components/Section';
-import { Skeleton, Empty } from 'antd';
+import { Skeleton } from 'antd';
 
 interface ArticleSectionProps {
   title: string;
@@ -32,7 +32,7 @@ const EmptyState = ({ title }: { title: string }) => (
     </div>
     <h3 className="text-lg font-semibold text-slate-300 mb-2">No {title} Articles Yet</h3>
     <p className="text-slate-500 text-sm max-w-md">
-      We're working on adding great content. Check back soon for amazing {title.toLowerCase()} articles!
+      We&apos;re working on adding great content. Check back soon for amazing {title.toLowerCase()} articles!
     </p>
   </div>
 );
