@@ -1,0 +1,795 @@
+/* Admin Global Styles - Text Colors Only (Dark Card Backgrounds) */
+
+/* ========================================
+   Force Dark Backgrounds for Admin Cards
+   ======================================== */
+
+/* Admin card backgrounds - force dark theme */
+.ant-card {
+  background-color: rgba(30, 41, 59, 0.5) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 12px !important;
+}
+
+.ant-card-head {
+  background-color: transparent !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.ant-card-body {
+  background-color: transparent !important;
+}
+
+/* System status and debug cards */
+.admin-card,
+.glass-card {
+  background-color: rgba(30, 41, 59, 0.5) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 12px !important;
+}
+
+/* Statistic cards */
+.ant-statistic {
+  background-color: transparent !important;
+}
+
+/* ========================================
+   Helper Classes for Admin Components
+   ======================================== */
+
+/* Helper class for inputs - text color only */
+.admin-input {
+  color: #ffffff !important;
+}
+
+.admin-input::placeholder {
+  color: #94a3b8 !important;
+}
+
+.admin-input:focus {
+  color: #ffffff !important;
+}
+
+/* Helper class for text areas */
+.admin-textarea {
+  color: #ffffff !important;
+}
+
+.admin-textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Helper class for select components */
+.admin-select .ant-select-selection-item {
+  color: #ffffff !important;
+}
+
+.admin-select .ant-select-selection-placeholder {
+  color: #94a3b8 !important;
+}
+
+.admin-select .ant-select-arrow {
+  color: #94a3b8 !important;
+}
+
+/* ========================================
+   Global Admin Text Colors (Keep Dark Backgrounds)
+   ======================================== */
+
+/* Base text colors for admin - no background changes */
+.admin-page {
+  color: #ffffff !important;
+}
+
+.admin-page h1,
+.admin-page h2,
+.admin-page h3,
+.admin-page h4,
+.admin-page h5,
+.admin-page h6 {
+  color: #ffffff !important;
+}
+
+.admin-page p,
+.admin-page span:not([class*="ant-"]) {
+  color: #cbd5e1 !important;
+}
+
+.admin-page .text-dark {
+  color: #cbd5e1 !important;
+}
+
+/* ========================================
+   Ant Design Text Color Overrides (Keep Original Dark Backgrounds)
+   ======================================== */
+
+/* Input Components - Only change text/placeholder colors */
+.ant-input,
+.ant-input-affix-wrapper input,
+.ant-textarea,
+.ant-input-number-input {
+  color: #ffffff !important;
+  background-color: rgba(51, 65, 85, 0.5) !important;
+  border-color: #475569 !important;
+}
+
+.ant-input::placeholder,
+.ant-textarea::placeholder,
+.ant-input-number-input::placeholder {
+  color: #94a3b8 !important;
+}
+
+.ant-input:focus,
+.ant-input-focused,
+.ant-input-affix-wrapper:focus,
+.ant-input-affix-wrapper-focused {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
+  background-color: rgba(51, 65, 85, 0.5) !important;
+}
+
+/* Select Components - dark backgrounds with light text */
+.ant-select-selector {
+  background-color: rgba(51, 65, 85, 0.5) !important;
+  border-color: #475569 !important;
+  color: #ffffff !important;
+}
+
+.ant-select-selection-item {
+  color: #ffffff !important;
+}
+
+.ant-select-selection-placeholder {
+  color: #94a3b8 !important;
+}
+
+.ant-select-arrow {
+  color: #94a3b8 !important;
+}
+
+/* Dropdown menu dark backgrounds */
+.ant-select-dropdown {
+  background-color: #1e293b !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.ant-select-item {
+  color: #cbd5e1 !important;
+}
+
+.ant-select-item:hover {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  color: #ffffff !important;
+}
+
+.ant-select-item-option-selected {
+  background-color: #3b82f6 !important;
+  color: #ffffff !important;
+}
+
+/* Form Labels - text only */
+.ant-form-item-label > label {
+  color: #cbd5e1 !important;
+}
+
+.ant-form-item-required::before {
+  color: #ef4444 !important;
+}
+
+/* Tables - dark backgrounds with light text */
+.ant-table {
+  background-color: transparent !important;
+  color: #ffffff !important;
+}
+
+.ant-table-thead > tr > th {
+  background-color: rgba(51, 65, 85, 0.5) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #cbd5e1 !important;
+  font-weight: 600 !important;
+}
+
+.ant-table-thead > tr > th .ant-table-column-title {
+  color: #cbd5e1 !important;
+}
+
+.ant-table-thead > tr > th .ant-table-column-sorter {
+  color: #94a3b8 !important;
+}
+
+.ant-table-tbody > tr > td {
+  background-color: transparent !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  color: #ffffff !important;
+}
+
+.ant-table-tbody > tr:hover > td {
+  background-color: rgba(255, 255, 255, 0.03) !important;
+}
+
+.ant-table-empty .ant-empty-description {
+  color: #94a3b8 !important;
+}
+
+.ant-table-placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Table filter and search icons */
+.ant-table-filter-trigger {
+  color: #94a3b8 !important;
+}
+
+.ant-table-filter-trigger:hover {
+  color: #ffffff !important;
+}
+
+/* Table selection text */
+.ant-table-selection-column .ant-checkbox-wrapper {
+  color: #ffffff !important;
+}
+
+/* Checkbox styling */
+.ant-checkbox {
+  border-color: #475569 !important;
+}
+
+.ant-checkbox-checked .ant-checkbox-inner {
+  background-color: #3b82f6 !important;
+  border-color: #3b82f6 !important;
+}
+
+.ant-checkbox:hover .ant-checkbox-inner {
+  border-color: #60a5fa !important;
+}
+
+/* Pagination - dark backgrounds */
+.ant-pagination-item {
+  background-color: rgba(51, 65, 85, 0.5) !important;
+  border-color: #475569 !important;
+}
+
+.ant-pagination-item a {
+  color: #cbd5e1 !important;
+}
+
+.ant-pagination-item:hover {
+  background-color: rgba(71, 85, 105, 0.5) !important;
+}
+
+.ant-pagination-item:hover a {
+  color: #ffffff !important;
+}
+
+.ant-pagination-item-active {
+  background-color: #3b82f6 !important;
+  border-color: #3b82f6 !important;
+}
+
+.ant-pagination-item-active a {
+  color: #ffffff !important;
+}
+
+.ant-pagination-prev,
+.ant-pagination-next {
+  color: #cbd5e1 !important;
+}
+
+.ant-pagination-prev:hover,
+.ant-pagination-next:hover {
+  color: #ffffff !important;
+}
+
+.ant-pagination-jump-prev,
+.ant-pagination-jump-next {
+  color: #cbd5e1 !important;
+}
+
+.ant-pagination-options-quick-jumper input {
+  background-color: rgba(51, 65, 85, 0.5) !important;
+  border-color: #475569 !important;
+  color: #ffffff !important;
+}
+
+.ant-pagination-total-text {
+  color: #cbd5e1 !important;
+}
+
+/* Modal dark backgrounds */
+.ant-modal-content {
+  background-color: #1e293b !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 12px !important;
+}
+
+.ant-modal-header {
+  background-color: #1e293b !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 12px 12px 0 0 !important;
+}
+
+.ant-modal-body {
+  background-color: #1e293b !important;
+  color: #ffffff !important;
+}
+
+.ant-modal-title {
+  color: #ffffff !important;
+}
+
+.ant-modal-close-x {
+  color: #94a3b8 !important;
+}
+
+.ant-modal-close-x:hover {
+  color: #ffffff !important;
+}
+
+/* Button styling - keep original dark themes */
+.ant-btn-default {
+  background-color: rgba(51, 65, 85, 0.5) !important;
+  border-color: #475569 !important;
+  color: #cbd5e1 !important;
+}
+
+.ant-btn-default:hover {
+  background-color: rgba(71, 85, 105, 0.5) !important;
+  border-color: #64748b !important;
+  color: #ffffff !important;
+}
+
+.ant-btn-text {
+  color: inherit !important;
+}
+
+.ant-btn-text:hover {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  color: #ffffff !important;
+}
+
+/* Switch styling */
+.ant-switch {
+  background-color: rgba(51, 65, 85, 0.5) !important;
+}
+
+.ant-switch-checked {
+  background-color: #3b82f6 !important;
+}
+
+/* ColorPicker styling */
+.ant-color-picker-trigger {
+  border-color: #475569 !important;
+}
+
+.ant-color-picker-trigger-text {
+  color: #ffffff !important;
+}
+
+/* Icon Components - make them lighter but keep backgrounds */
+.anticon {
+  color: inherit !important;
+}
+
+.ant-table .anticon {
+  color: inherit !important;
+}
+
+/* Ensure all icons inherit proper color */
+.admin-page .anticon,
+.admin-card .anticon,
+.custom-table .anticon {
+  color: inherit !important;
+}
+
+/* Specific icon color overrides for buttons */
+.ant-btn .anticon {
+  color: inherit !important;
+}
+
+.ant-btn-text .anticon {
+  color: inherit !important;
+}
+
+/* Search and input icons */
+.ant-input-prefix .anticon,
+.ant-input-suffix .anticon {
+  color: #94a3b8 !important;
+}
+
+.ant-input-prefix .anticon:hover,
+.ant-input-suffix .anticon:hover {
+  color: #ffffff !important;
+}
+
+/* Dropdown and select arrows */
+.ant-select-arrow .anticon {
+  color: #94a3b8 !important;
+}
+
+/* Form validation icons */
+.ant-form-item-children-icon {
+  color: inherit !important;
+}
+
+/* Menu and navigation icons */
+.ant-menu .anticon {
+  color: inherit !important;
+}
+
+/* Statistics text */
+.ant-statistic-title {
+  color: #cbd5e1 !important;
+}
+
+.ant-statistic-content {
+  color: #ffffff !important;
+}
+
+.ant-statistic-content-value {
+  color: #ffffff !important;
+}
+
+/* Empty states */
+.ant-empty-description {
+  color: #94a3b8 !important;
+}
+
+/* Loading states */
+.ant-spin-dot-item {
+  background-color: #3b82f6 !important;
+}
+
+/* Popconfirm dark backgrounds */
+.ant-popover {
+  z-index: 1500 !important;
+}
+
+.ant-popover-inner {
+  background-color: #1e293b !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.ant-popover-inner-content {
+  color: #ffffff !important;
+}
+
+.ant-popover-message-title {
+  color: #ffffff !important;
+}
+
+.ant-popover-message {
+  color: #ffffff !important;
+}
+
+.ant-popover-message .ant-popover-message-title {
+  color: #ffffff !important;
+}
+
+.ant-popover-message .ant-popover-message-content {
+  color: #cbd5e1 !important;
+}
+
+.ant-popover-buttons {
+  margin-top: 12px !important;
+}
+
+/* Delete confirmation popup specific styling */
+.ant-popconfirm {
+  color: #ffffff !important;
+}
+
+.ant-popconfirm .ant-popover-message-title {
+  color: #ffffff !important;
+}
+
+.ant-popconfirm .ant-popover-inner-content {
+  color: #ffffff !important;
+}
+
+.ant-popconfirm-message {
+  color: #ffffff !important;
+}
+
+.ant-popconfirm-message > div {
+  color: #ffffff !important;
+}
+
+/* All popover content should be light */
+.ant-popover-content {
+  color: #ffffff !important;
+}
+
+.ant-popover-title {
+  color: #ffffff !important;
+}
+
+/* Ensure all text in popover is light */
+.ant-popover * {
+  color: inherit !important;
+}
+
+.ant-popover-inner * {
+  color: #ffffff !important;
+}
+
+/* Button styling in popconfirm */
+.ant-popconfirm .ant-btn {
+  margin-left: 8px !important;
+}
+
+.ant-popconfirm .ant-btn-primary.ant-btn-dangerous {
+  background-color: #ef4444 !important;
+  border-color: #ef4444 !important;
+  color: #ffffff !important;
+}
+
+.ant-popconfirm .ant-btn-primary.ant-btn-dangerous:hover {
+  background-color: #dc2626 !important;
+  border-color: #dc2626 !important;
+  color: #ffffff !important;
+}
+
+.ant-popconfirm .ant-btn-default {
+  background-color: rgba(51, 65, 85, 0.5) !important;
+  border-color: #475569 !important;
+  color: #cbd5e1 !important;
+}
+
+.ant-popconfirm .ant-btn-default:hover {
+  background-color: rgba(71, 85, 105, 0.5) !important;
+  border-color: #64748b !important;
+  color: #ffffff !important;
+}
+
+/* Checkbox wrapper text */
+.ant-checkbox-wrapper {
+  color: #cbd5e1 !important;
+}
+
+/* Tag styling */
+.ant-tag {
+  border-radius: 6px !important;
+  font-weight: 500 !important;
+}
+
+/* ========================================
+   Custom Admin Components (Dark Backgrounds)
+   ======================================== */
+
+/* Admin Layout Specific */
+.admin-layout {
+  min-height: 100vh;
+  background-color: #0f172a;
+}
+
+/* Admin Cards - force dark */
+.admin-card {
+  background-color: rgba(30, 41, 59, 0.5) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 12px !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+/* Glass effect for navigation */
+.glass {
+  background: rgba(30, 41, 59, 0.7) !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Custom table styles - dark backgrounds */
+.custom-table .ant-table {
+  background-color: transparent !important;
+}
+
+.custom-table .ant-table-thead > tr > th {
+  background-color: rgba(51, 65, 85, 0.5) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #cbd5e1 !important;
+  font-weight: 600 !important;
+}
+
+.custom-table .ant-table-tbody > tr > td {
+  background-color: transparent !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  color: #ffffff !important;
+}
+
+.custom-table .ant-table-tbody > tr:hover > td {
+  background-color: rgba(255, 255, 255, 0.03) !important;
+}
+
+/* Custom pagination - dark backgrounds */
+.custom-pagination .ant-pagination-item {
+  background-color: rgba(51, 65, 85, 0.5) !important;
+  border-color: #475569 !important;
+}
+
+.custom-pagination .ant-pagination-item a {
+  color: #cbd5e1 !important;
+}
+
+.custom-pagination .ant-pagination-item:hover a {
+  color: #ffffff !important;
+}
+
+.custom-pagination .ant-pagination-item-active {
+  background-color: #3b82f6 !important;
+  border-color: #3b82f6 !important;
+}
+
+.custom-pagination .ant-pagination-item-active a {
+  color: #ffffff !important;
+}
+
+/* Custom select - dark backgrounds */
+.custom-select .ant-select-selector {
+  background-color: rgba(51, 65, 85, 0.5) !important;
+  border-color: #475569 !important;
+  color: #ffffff !important;
+}
+
+.custom-select .ant-select-selection-placeholder {
+  color: #94a3b8 !important;
+}
+
+.custom-select .ant-select-selection-item {
+  color: #ffffff !important;
+}
+
+/* Admin modal styles - dark backgrounds */
+.admin-modal .ant-modal-content {
+  background-color: #1e293b !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 12px !important;
+}
+
+.admin-modal .ant-modal-header {
+  background-color: #1e293b !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 12px 12px 0 0 !important;
+}
+
+.admin-modal .ant-modal-body {
+  background-color: #1e293b !important;
+  color: #ffffff !important;
+}
+
+.admin-modal .ant-form-item-label > label {
+  color: #cbd5e1 !important;
+}
+
+.admin-modal .ant-switch {
+  background-color: rgba(51, 65, 85, 0.5) !important;
+}
+
+.admin-modal .ant-switch-checked {
+  background-color: #3b82f6 !important;
+}
+
+.admin-modal .ant-color-picker-trigger {
+  border-color: #475569 !important;
+}
+
+/* ========================================
+   Global Popup and Overlay Text Fixes
+   ======================================== */
+
+/* Force all popover and dropdown text to be light */
+.ant-popover,
+.ant-popover *,
+.ant-popconfirm,
+.ant-popconfirm *,
+.ant-dropdown,
+.ant-dropdown *,
+.ant-tooltip,
+.ant-tooltip * {
+  color: #ffffff !important;
+}
+
+/* Specific override for popover messages */
+div[class*="ant-popover"] {
+  color: #ffffff !important;
+}
+
+div[class*="ant-popover"] * {
+  color: #ffffff !important;
+}
+
+/* Force override for any dark text that might appear */
+.ant-popover-inner-content > div,
+.ant-popover-inner-content > div > div,
+.ant-popover-message > div,
+.ant-popconfirm-message > div {
+  color: #ffffff !important;
+}
+
+/* Ensure description text is also light */
+.ant-popconfirm-description {
+  color: #cbd5e1 !important;
+}
+
+/* ========================================
+   Dark Theme Specific Text Overrides
+   ======================================== */
+
+/* Ensure all text is light by default in admin */
+body.admin-theme,
+body.admin-theme * {
+  color: #cbd5e1;
+}
+
+body.admin-theme h1,
+body.admin-theme h2,
+body.admin-theme h3,
+body.admin-theme h4,
+body.admin-theme h5,
+body.admin-theme h6 {
+  color: #ffffff;
+}
+
+/* Override any dark text that might slip through */
+.ant-typography,
+.ant-typography * {
+  color: inherit !important;
+}
+
+/* ========================================
+   Responsive Design
+   ======================================== */
+
+@media (max-width: 768px) {
+  .admin-card {
+    margin: 0 !important;
+    border-radius: 8px !important;
+    background-color: rgba(30, 41, 59, 0.5) !important;
+  }
+  
+  .custom-table {
+    font-size: 14px !important;
+  }
+  
+  .custom-pagination {
+    text-align: center !important;
+  }
+  
+  .admin-page {
+    color: #ffffff !important;
+  }
+}
+
+/* ========================================
+   Input Number Components
+   ======================================== */
+
+.ant-input-number {
+  background-color: rgba(51, 65, 85, 0.5) !important;
+  border-color: #475569 !important;
+  color: #ffffff !important;
+}
+
+.ant-input-number-input {
+  color: #ffffff !important;
+  background-color: transparent !important;
+}
+
+.ant-input-number-handler-wrap {
+  background-color: rgba(51, 65, 85, 0.5) !important;
+  border-color: #475569 !important;
+}
+
+.ant-input-number-handler {
+  color: #94a3b8 !important;
+  border-color: #475569 !important;
+}
+
+.ant-input-number-handler:hover {
+  color: #ffffff !important;
+}
+
+/* Input addon styling */
+.ant-input-group-addon {
+  color: #94a3b8 !important;
+  background-color: rgba(51, 65, 85, 0.3) !important;
+  border-color: #475569 !important;
+}

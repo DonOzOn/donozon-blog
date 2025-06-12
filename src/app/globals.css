@@ -1,26 +1,566 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import admin styles */
+@import '../styles/admin.css';
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0f0f23;
+  --foreground: #e2e8f0;
+  --surface: #1a1a2e;
+  --surface-light: #16213e;
+  --accent: #6366f1;
+  --accent-light: #8b5cf6;
+  --accent-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --photographer-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  --developer-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  --glass-bg: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.18);
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --font-plus-jakarta-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  
+  /* Prevent white flashes */
+  color-scheme: dark;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Optimized Glassmorphism utilities */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  will-change: auto;
+  transform: translate3d(0, 0, 0);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.glass-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  will-change: auto;
+  transform: translate3d(0, 0, 0);
+}
+
+/* Hero background with masculine, creative design */
+.bg-gradient-hero {
+  background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.bg-gradient-hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    linear-gradient(45deg, transparent 40%, rgba(100, 255, 218, 0.03) 50%, transparent 60%),
+    linear-gradient(-45deg, transparent 40%, rgba(255, 107, 107, 0.03) 50%, transparent 60%),
+    radial-gradient(circle at 20% 20%, rgba(100, 255, 218, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(255, 107, 107, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 40% 60%, rgba(130, 87, 229, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.bg-gradient-hero::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2364ffda' fill-opacity='0.02'%3E%3Cpath d='M0 0h80v80H0V0zm20 20h40v40H20V20zm20 35a15 15 0 1 1 0-30 15 15 0 0 1 0 30z' /%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+/* Creative mesh gradient overlay */
+.hero-mesh {
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(circle at 25% 25%, #64ffda20 0%, transparent 50%),
+    radial-gradient(circle at 75% 25%, #ff6b6b20 0%, transparent 50%),
+    radial-gradient(circle at 25% 75%, #8257e520 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, #4ecdc420 0%, transparent 50%);
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+.bg-gradient-category {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+  position: relative;
+}
+
+.bg-gradient-category::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 25% 25%, rgba(102, 126, 234, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* Optimized floating elements animation */
+@keyframes float {
+  0% { transform: translate3d(0, 0px, 0) rotate(0deg); }
+  50% { transform: translate3d(0, -8px, 0) rotate(1deg); }
+  100% { transform: translate3d(0, 0px, 0) rotate(0deg); }
+}
+
+.floating {
+  animation: float 8s ease-in-out infinite;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+}
+
+.floating:nth-child(2) {
+  animation-delay: -2.5s;
+}
+
+.floating:nth-child(3) {
+  animation-delay: -5s;
+}
+
+/* Performance optimizations */
+.performance-optimized {
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  contain: layout style paint;
+}
+
+.scroll-optimized {
+  will-change: scroll-position;
+  contain: layout style;
+}
+
+/* Code/Camera icons for personality */
+.personality-icon {
+  position: absolute;
+  opacity: 0.05;
+  pointer-events: none;
+  z-index: 1;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-family: var(--font-plus-jakarta-sans);
+  overflow-x: hidden; /* Prevent horizontal scroll */
+  background-color: #0f0f23 !important;
+  color-scheme: dark;
+}
+
+/* Remove focus outlines and tap highlights */
+*:focus {
+  outline: none !important;
+}
+
+*:focus-visible {
+  outline: none !important;
+}
+
+/* Remove tap highlights on mobile */
+* {
+  -webkit-tap-highlight-color: transparent !important;
+  -webkit-touch-callout: none !important;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Only force dark background on key layout elements */
+html, body, #__next, [data-nextjs-scroll-focus-boundary] {
+  background-color: #0f0f23 !important;
+  color-scheme: dark !important;
+}
+
+/* Prevent transitions on page load only */
+.no-transitions * {
+  transition: none !important;
+}
+
+/* Allow text selection for content areas */
+p, span, h1, h2, h3, h4, h5, h6, li {
+  -webkit-user-select: text;
+  -khtml-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+/* Remove button focus styles */
+button:focus,
+button:focus-visible,
+.ant-btn:focus,
+.ant-btn:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Remove link focus styles */
+a:focus,
+a:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
 }
 
 body {
-  background: var(--background);
+  background: #0f0f23 !important;
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-plus-jakarta-sans);
+  font-feature-settings: 'rlig' 1, 'calt' 1;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden; /* Prevent horizontal scroll */
+  min-height: 100vh;
+}
+
+html {
+  margin: 0;
+  padding: 0;
+  background-color: #0f0f23 !important;
+  min-height: 100vh;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Prevent horizontal overflow globally */
+.container, .max-w-7xl {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* Ant Design Button Customizations */
+.ant-btn-primary {
+  background-color: #f97316 !important;
+  border-color: #f97316 !important;
+  box-shadow: none !important;
+}
+
+.ant-btn-primary:hover {
+  background-color: #ea580c !important;
+  border-color: #ea580c !important;
+}
+
+.ant-btn-primary:focus {
+  background-color: #ea580c !important;
+  border-color: #ea580c !important;
+}
+
+/* Hero Section Button - Purple variant */
+.ant-btn-primary.hero-btn {
+  background-color: #6246EA !important;
+  border-color: #6246EA !important;
+}
+
+.ant-btn-primary.hero-btn:hover {
+  background-color: #5235d1 !important;
+  border-color: #5235d1 !important;
+}
+
+/* Ant Design Input Customizations */
+.ant-input:focus, .ant-input-focused {
+  border-color: #f97316 !important;
+  box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.1) !important;
+}
+
+/* Ant Design Drawer Customizations */
+.mobile-menu-drawer .ant-drawer-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 16px 24px;
+  background-color: #1a1a2e;
+}
+
+.mobile-menu-drawer .ant-drawer-body {
+  padding: 0 24px;
+  background-color: #1a1a2e;
+}
+
+/* Force drawer z-index */
+.ant-drawer {
+  z-index: 1000 !important;
+}
+
+.ant-drawer-mask {
+  z-index: 999 !important;
+}
+
+.ant-drawer-content-wrapper {
+  z-index: 1000 !important;
+}
+
+.ant-drawer-content {
+  background-color: #1a1a2e !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Search box animations */
+.search-container {
+  position: relative;
+}
+
+.search-container .search-input {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.search-container .search-dropdown {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: searchDropdownFadeIn 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes searchDropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Search result highlight animation */
+.search-result-item {
+  position: relative;
+  overflow: hidden;
+}
+
+.search-result-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(100, 255, 218, 0.1), transparent);
+  transition: left 0.5s;
+}
+
+.search-result-item:hover::before {
+  left: 100%;
+}
+
+/* Typography improvements */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Custom shadows */
+.shadow-figma {
+  box-shadow: 4px 6px 13px 0px rgba(215, 215, 215, 0.25);
+}
+
+/* Remove underlines from normal text, keep only for links */
+* {
+  text-decoration: none;
+}
+
+a {
+  text-decoration: none;
+}
+
+/* Only add underlines to footer links on hover */
+footer a:hover {
+  text-decoration: underline;
+}
+
+/* Mobile responsiveness improvements - only affects mobile devices */
+@media (max-width: 767px) {
+  /* Hide dot patterns on mobile to prevent overflow */
+  .dot-pattern {
+    display: none !important;
+  }
+  
+  /* Ensure no element can cause horizontal overflow on mobile only */
+  * {
+    max-width: 100vw;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+  
+  /* Specific fixes for common overflow causes on mobile */
+  img, video, iframe, embed, object {
+    max-width: 100% !important;
+    /* height: auto !important; */
+  }
+  
+  /* Fix for ant design components on mobile */
+  .ant-input, .ant-btn {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  
+  /* Fix hero section layout on mobile */
+  .bg-gradient-hero {
+    min-height: 600px;
+    position: relative;
+    z-index: 10;
+    padding-bottom: 56px;
+  }
+  
+  /* Ensure sections don't overlap hero image */
+  .bg-gradient-category {
+    position: relative;
+    z-index: 5;
+    margin-top: 0;
+  }
+  
+  /* Fix mobile drawer overlay issues */
+  .ant-drawer-wrapper {
+    z-index: 1000 !important;
+  }
+  
+  .ant-drawer-mask {
+    z-index: 1000 !important;
+    background-color: rgba(15, 15, 35, 0.8) !important;
+    backdrop-filter: blur(8px) !important;
+  }
+  
+  .ant-drawer-content-wrapper {
+    z-index: 1001 !important;
+  }
+  
+  /* Ensure mobile menu button is clickable */
+  .ant-btn {
+    z-index: 50 !important;
+    pointer-events: auto !important;
+  }
+}
+
+/* Article content styling - Medium-like clean style */
+.article-content {
+  color: #ffffff !important;
+}
+
+.article-content * {
+  color: #ffffff !important;
+}
+
+.article-content p {
+  color: #ffffff !important;
+  margin-bottom: 1rem;
+  line-height: 1.6;
+  font-size: 16px;
+}
+
+.article-content h1,
+.article-content h2,
+.article-content h3,
+.article-content h4,
+.article-content h5,
+.article-content h6 {
+  color: #ffffff !important;
+  font-weight: 700;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+}
+
+.article-content h2 {
+  font-size: 1.5rem;
+  line-height: 1.4;
+}
+
+.article-content h3 {
+  font-size: 1.25rem;
+  line-height: 1.4;
+}
+
+.article-content ul,
+.article-content ol {
+  color: #ffffff !important;
+  margin: 1rem 0;
+  padding-left: 1.25rem;
+}
+
+.article-content li {
+  color: #ffffff !important;
+  margin-bottom: 0.25rem;
+  line-height: 1.6;
+}
+
+.article-content blockquote {
+  color: #ffffff !important;
+  border-left: 3px solid #06b6d4;
+  padding-left: 1rem;
+  margin: 1.5rem 0;
+  font-style: italic;
+  background: rgba(6, 182, 212, 0.05);
+  padding: 1rem;
+  border-radius: 0.375rem;
+}
+
+.article-content strong {
+  color: #ffffff !important;
+  font-weight: 600;
+}
+
+.article-content em {
+  color: #f1f5f9 !important;
+}
+
+.article-content code {
+  color: #22d3ee !important;
+  background: rgba(15, 23, 42, 0.8);
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.875rem;
+}
+
+.article-content pre {
+  background: rgba(15, 23, 42, 0.9);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.article-content pre code {
+  background: transparent;
+  padding: 0;
+  color: #22d3ee !important;
+  font-size: 0.875rem;
+}
+
+.article-content a {
+  color: #10b981 !important;
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+
+.article-content a:hover {
+  color: #34d399 !important;
+}
+
+/* Ensure all text elements in article content are white */
+.article-content div,
+.article-content span,
+.article-content section,
+.article-content article {
+  color: #ffffff !important;
 }
