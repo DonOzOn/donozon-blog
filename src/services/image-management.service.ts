@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Image Management Service
  * Handles tracking, cleanup, and management of article images
@@ -78,7 +79,7 @@ export class ImageManagementService {
       }
 
       return data || 0;
-    } catch (error) {
+    } catch (error: any) {
       // Check if it's a missing function error
       if (error.message?.includes('function') || error.message?.includes('does not exist')) {
         console.warn('Image management functions not installed. Please run the database migration.');
@@ -164,7 +165,7 @@ export class ImageManagementService {
       }
 
       return data || [];
-    } catch (error) {
+    } catch (error: any) {
       // Check if it's a missing table error
       if (error.message?.includes('relation') || error.message?.includes('does not exist')) {
         console.warn('article_images table not found. Please run the database migration.');
@@ -201,7 +202,7 @@ export class ImageManagementService {
       }
 
       return data || [];
-    } catch (error) {
+    } catch (error: any) {
       // Check if it's a missing table error
       if (error.message?.includes('relation') || error.message?.includes('does not exist')) {
         console.warn('article_images table not found. Please run the database migration.');
@@ -238,7 +239,7 @@ export class ImageManagementService {
       }
 
       return data || [];
-    } catch (error) {
+    } catch (error: any) {
       // Check if it's a missing table error
       if (error.message?.includes('relation') || error.message?.includes('does not exist')) {
         console.warn('article_images table not found. Please run the database migration.');
@@ -413,7 +414,7 @@ export class ImageManagementService {
         total_size: images.reduce((sum, img) => sum + (img.file_size || 0), 0),
         total_articles_with_images: uniqueArticles.size,
       };
-    } catch (error) {
+    } catch (error: any) {
       // Check if it's a missing table error
       if (error.message?.includes('relation') || error.message?.includes('does not exist')) {
         console.warn('article_images table not found. Please run the database migration.');
@@ -668,7 +669,7 @@ export class ImageManagementService {
       console.log(`📊 Image tracking complete for article ${articleId}: ${adoptedCount} adopted, ${usageResult} usage updates`);
       
       return adoptedCount + usageResult;
-    } catch (error) {
+    } catch (error: any) {
       // If the database function doesn't exist, just adopt orphaned images
       if (error.message?.includes('function') || error.message?.includes('does not exist')) {
         console.warn('Image management functions not installed. Using fallback method.');

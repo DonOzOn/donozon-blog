@@ -478,6 +478,9 @@ export type Database = {
       }
       published_articles: {
         Row: {
+          author: string | null
+          publishedAt: string | null
+          imageUrl: string | null
           author_avatar: string | null
           author_id: string | null
           author_name: string | null

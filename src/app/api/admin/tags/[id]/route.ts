@@ -7,9 +7,10 @@ import type { TagInsert } from '@/types/database';
 // GET /api/admin/tags/[id] - Get single tag
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await context.params;
     const { id } = params;
     
     // Try to get by ID first, if not found, try by slug
@@ -48,9 +49,10 @@ export async function GET(
 // PUT /api/admin/tags/[id] - Update tag
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await context.params;
     const { id } = params;
     const updates: Partial<TagInsert> = await request.json();
 
@@ -68,9 +70,10 @@ export async function PUT(
 // DELETE /api/admin/tags/[id] - Delete tag
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await context.params;
     const { id } = params;
 
     if (!id) {

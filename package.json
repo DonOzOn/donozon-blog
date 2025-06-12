@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@ant-design/nextjs-registry": "^1.0.2",
+    "@emailjs/browser": "^4.4.1",
     "@lexical/code": "^0.32.1",
     "@lexical/history": "^0.32.1",
     "@lexical/html": "^0.32.1",

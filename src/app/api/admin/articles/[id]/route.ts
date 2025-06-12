@@ -18,8 +18,9 @@ const supabaseAdmin = createClient<Database>(
 // GET /api/admin/articles/[id] - Get single article
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
+  const params = await context.params;
   try {
     const { data, error } = await supabaseAdmin
       .from('articles')
@@ -56,8 +57,9 @@ export async function GET(
 // PUT /api/admin/articles/[id] - Update article
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
+  const params = await context.params;
   try {
     console.log('📝 API Update Article: Starting update for ID:', params.id);
     
@@ -129,8 +131,9 @@ export async function PUT(
 // DELETE /api/admin/articles/[id] - Delete article
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
+  const params = await context.params;
   try {
     const { error } = await supabaseAdmin
       .from('articles')

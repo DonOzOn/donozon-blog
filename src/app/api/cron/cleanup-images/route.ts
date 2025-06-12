@@ -36,10 +36,17 @@ export async function POST(request: NextRequest) {
     };
 
     const results = {
-      standardCleanup: null,
-      orphanedCleanup: null,
-      errors: [],
-      stats: null,
+      standardCleanup: null as null | { deleted_count: number; deleted_images: string[] },
+      orphanedCleanup: null as null | { deleted: number; failed: string[] },
+      errors: [] as string[],
+      stats: null as null | {
+        total_images: number;
+        used_images: number;
+        unused_images: number;
+        pending_deletion: number;
+        total_size: number;
+        total_articles_with_images: number;
+      },
     };
 
     try {
@@ -49,7 +56,11 @@ export async function POST(request: NextRequest) {
       console.log(`✅ Standard cleanup: ${results.standardCleanup.deleted_count} images deleted`);
     } catch (error) {
       console.error('❌ Standard cleanup failed:', error);
-      results.errors.push(`Standard cleanup failed: ${error.message}`);
+      if (error instanceof Error) {
+        results.errors.push(`Standard cleanup failed: ${error.message}`);
+      } else {
+        results.errors.push('Standard cleanup failed: Unknown error');
+      }
     }
 
     try {
@@ -66,7 +77,11 @@ export async function POST(request: NextRequest) {
         if (oldOrphanedImages.length > 0) {
           const batchIds = oldOrphanedImages.slice(0, config.batchSize).map(img => img.id);
           results.orphanedCleanup = await imageManagementService.forceDeleteImages(batchIds);
-          console.log(`✅ Orphaned cleanup: ${results.orphanedCleanup.deleted} images deleted`);
+          if (results.orphanedCleanup) {
+            console.log(`✅ Orphaned cleanup: ${results.orphanedCleanup?.deleted ?? 0} images deleted`);
+          } else {
+            console.log('ℹ️ No orphaned cleanup results available');
+          }
         } else {
           console.log('ℹ️ No orphaned images to clean up');
           results.orphanedCleanup = { deleted: 0, failed: [] };
@@ -74,7 +89,7 @@ export async function POST(request: NextRequest) {
       }
     } catch (error) {
       console.error('❌ Orphaned cleanup failed:', error);
-      results.errors.push(`Orphaned cleanup failed: ${error.message}`);
+      results.errors.push(`Orphaned cleanup failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
 
     try {
@@ -82,7 +97,7 @@ export async function POST(request: NextRequest) {
       results.stats = await imageManagementService.getGlobalImageStats();
     } catch (error) {
       console.error('❌ Failed to get final stats:', error);
-      results.errors.push(`Stats collection failed: ${error.message}`);
+      results.errors.push(`Stats collection failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
 
     const duration = Date.now() - startTime;
@@ -138,8 +153,8 @@ export async function POST(request: NextRequest) {
           body: JSON.stringify({
             type: 'image_cleanup_error',
             timestamp: new Date().toISOString(),
-            error: error.message,
-            stack: error.stack,
+            error: error instanceof Error ? error.message : 'Unknown error',
+            stack: error instanceof Error ? error.stack : 'No stack available',
           }),
         });
       } catch (monitoringError) {

@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 
 export const HeroSection = () => {
   // Optimized floating elements - fewer and more performant
@@ -64,30 +65,39 @@ export const HeroSection = () => {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 pt-4 pb-8 sm:pb-0">
-              <button className="group relative px-8 py-4 bg-gradient-to-r from-emerald-600 to-cyan-600 rounded-xl font-semibold text-white overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-emerald-500/25">
-                <span className="relative z-10 flex items-center justify-center gap-2">
-                  📸 Portfolio
-                </span>
-                <div className="absolute inset-0 bg-gradient-to-r from-red-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              </button>
+              <Link href="/portfolio">
+                <button className="group relative px-8 py-4 bg-gradient-to-r from-emerald-600 to-cyan-600 rounded-xl font-semibold text-white overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-emerald-500/25">
+                  <span className="relative z-10 flex items-center justify-center gap-2">
+                    📸 Portfolio
+                  </span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-red-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                </button>
+              </Link>
               
-              <button className="group px-8 py-4 glass-card rounded-xl font-semibold text-white border border-white/20 hover:border-emerald-400/40 transition-all duration-300 hover:bg-emerald-500/10">
-                <span className="flex items-center justify-center gap-2">
-                  ⚡ Latest Work
-                </span>
-              </button>
+              <Link href="/articles">
+                <button className="group px-8 py-4 glass-card rounded-xl font-semibold text-white border border-white/20 hover:border-emerald-400/40 transition-all duration-300 hover:bg-emerald-500/10">
+                  <span className="flex items-center justify-center gap-2">
+                    ⚡ Contact me
+                  </span>
+                </button>
+              </Link>
             </div>
 
             {/* Tech Stack Icons */}
-            <div className="flex items-center gap-6 pt-0 sm:pt-6">
-              <span className="text-sm font-medium text-slate-400 uppercase tracking-wider">Stack</span>
-              <div className="flex items-center gap-4">
-                {['React', 'Next.js', 'TypeScript', 'Node.js'].map((tech) => (
-                  <div key={tech} className="glass-card px-3 py-1 rounded-lg text-xs font-medium text-slate-300 hover:text-white transition-colors">
-                    {tech}
-                  </div>
-                ))}
-              </div>
+            <div className="flex flex-wrap sm:flex-nowrap items-start gap-4 pt-0 sm:pt-6 px-4 sm:px-0">
+                <span className="text-sm font-medium text-slate-400 uppercase tracking-wider mt-1">
+                  Stack
+                </span>
+                <div className="flex flex-wrap gap-2 sm:gap-4">
+                  {['React Native', 'Flutter', 'ReactJS', 'Javascipt', 'TypeScript', 'Dart' , 'HTML' , 'CSS' , 'Azure'].map((tech) => (
+                    <div
+                      key={tech}
+                      className="glass-card px-3 py-1 rounded-lg text-xs font-medium text-slate-300 hover:text-white transition-colors whitespace-nowrap"
+                    >
+                      {tech}
+                    </div>
+                  ))}
+                </div>
             </div>
           </div>
 

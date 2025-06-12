@@ -1,8 +1,60 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import { Footer } from '@/components/Footer';
 import { Navbar } from '@/components/Navbar';
 import { AppConfig } from '@/utils/AppConfig';
+import { useContactForm } from '@/hooks/useContactForm';
+import { initEmailJS } from '@/services/emailService';
 
 export default function ContactPage() {
+  const { submitForm, resetForm, isLoading, isSuccess, error } = useContactForm();
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    subject: '',
+    message: '',
+  });
+
+  // Initialize EmailJS on component mount
+  useEffect(() => {
+    initEmailJS();
+  }, []);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Basic validation
+    if (!formData.firstName || !formData.lastName || !formData.email || !formData.message) {
+      return;
+    }
+
+    const success = await submitForm(formData);
+    
+    if (success) {
+      // Reset form after successful submission
+      setFormData({
+        firstName: '',
+        lastName: '',
+        email: '',
+        subject: '',
+        message: '',
+      });
+    }
+  };
+
+  const handleNewMessage = () => {
+    resetForm();
+  };
   return (
     <div className="min-h-screen bg-slate-900 overflow-x-hidden scroll-optimized">
       <Navbar />
@@ -34,36 +86,22 @@ export default function ContactPage() {
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4 p-6 glass-card rounded-2xl hover:bg-white/5 transition-all duration-300">
-                  <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-white text-lg mb-1">Phone</h3>
-                    <p className="text-slate-300 mb-2">{AppConfig.phone}</p>
-                    <p className="text-slate-400 text-sm">Available Mon-Fri, 9AM-6PM</p>
-                  </div>
-                </div>
+
 
                 <div className="flex items-start gap-4 p-6 glass-card rounded-2xl hover:bg-white/5 transition-all duration-300">
                   <div className="w-12 h-12 bg-gradient-to-r from-orange-600 to-red-600 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
+                    <div className="text-lg">🇻🇳</div>
                   </div>
                   <div>
                     <h3 className="font-semibold text-white text-lg mb-1">Location</h3>
-                    <p className="text-slate-300 mb-2">Remote & Indonesia</p>
+                    <p className="text-slate-300 mb-2">Vietnam</p>
                     <p className="text-slate-400 text-sm">Available for remote collaboration</p>
                   </div>
                 </div>
               </div>
 
               {/* Social Links */}
-              <div className="mt-12">
+              {/* <div className="mt-12">
                 <h3 className="text-xl font-semibold text-white mb-6">Follow Me</h3>
                 <div className="flex gap-4">
                   {[
@@ -82,7 +120,7 @@ export default function ContactPage() {
                     </a>
                   ))}
                 </div>
-              </div>
+              </div> */}
             </div>
 
             {/* Contact Form */}
@@ -90,7 +128,40 @@ export default function ContactPage() {
               <div className="glass-card rounded-2xl p-8 lg:p-10">
                 <h2 className="text-3xl font-bold text-white mb-8">Send a Message</h2>
                 
-                <form className="space-y-6">
+                <form className="space-y-6" onSubmit={handleSubmit}>
+                  {/* Success Message */}
+                  {isSuccess && (
+                    <div className="p-4 bg-emerald-900/50 border border-emerald-500 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        <div>
+                          <p className="text-emerald-400 font-medium">Message sent successfully!</p>
+                          <p className="text-emerald-300 text-sm">I&apos;ll get back to you within 24 hours.</p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleNewMessage}
+                        className="mt-3 text-emerald-400 hover:text-emerald-300 text-sm underline"
+                      >
+                        Send another message
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Error Message */}
+                  {error && (
+                    <div className="p-4 bg-red-900/50 border border-red-500 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <svg className="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p className="text-red-400">{error}</p>
+                      </div>
+                    </div>
+                  )}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div>
                       <label htmlFor="firstName" className="block text-sm font-medium text-slate-300 mb-2">
@@ -100,6 +171,9 @@ export default function ContactPage() {
                         type="text"
                         id="firstName"
                         name="firstName"
+                        value={formData.firstName}
+                        onChange={handleInputChange}
+                        required
                         className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 transition-colors"
                         placeholder="John"
                       />
@@ -112,6 +186,9 @@ export default function ContactPage() {
                         type="text"
                         id="lastName"
                         name="lastName"
+                        value={formData.lastName}
+                        onChange={handleInputChange}
+                        required
                         className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 transition-colors"
                         placeholder="Doe"
                       />
@@ -126,6 +203,9 @@ export default function ContactPage() {
                       type="email"
                       id="email"
                       name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      required
                       className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 transition-colors"
                       placeholder="john.doe@example.com"
                     />
@@ -138,6 +218,8 @@ export default function ContactPage() {
                     <select
                       id="subject"
                       name="subject"
+                      value={formData.subject}
+                      onChange={handleInputChange}
                       className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 transition-colors"
                     >
                       <option value="">Select a subject</option>
@@ -156,6 +238,9 @@ export default function ContactPage() {
                     <textarea
                       id="message"
                       name="message"
+                      value={formData.message}
+                      onChange={handleInputChange}
+                      required
                       rows={6}
                       className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 transition-colors resize-none"
                       placeholder="Tell me about your project or question..."
@@ -164,13 +249,25 @@ export default function ContactPage() {
 
                   <button
                     type="submit"
-                    className="w-full group relative px-8 py-4 bg-gradient-to-r from-emerald-600 to-cyan-600 rounded-xl font-semibold text-white overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-emerald-500/25"
+                    disabled={isLoading}
+                    className="w-full group relative px-8 py-4 bg-gradient-to-r from-emerald-600 to-cyan-600 rounded-xl font-semibold text-white overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                   >
                     <span className="relative z-10 flex items-center justify-center gap-2">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                      </svg>
-                      Send Message
+                      {isLoading ? (
+                        <>
+                          <svg className="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                          </svg>
+                          Sending...
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                          </svg>
+                          Send Message
+                        </>
+                      )}
                     </span>
                     <div className="absolute inset-0 bg-gradient-to-r from-red-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   </button>

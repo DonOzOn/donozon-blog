@@ -6,8 +6,7 @@ export const AppConfig = {
   locale_region: 'en-us',
   locale: 'en',
   url: 'https://DonOzOn.blog',
-  email: 'demo@gmail.com',
-  phone: '+62-8XXX-XXX-XX',
+  email: 'sky.knight.dn97@gmail.com',
   social: {
     linkedin: '#',
     medium: '#',

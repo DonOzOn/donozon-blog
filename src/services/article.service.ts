@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * Article Service - Supabase Implementation
@@ -8,6 +9,7 @@ import { articleRepository } from '@/repositories/article.repository';
 import { adminApiService } from '@/services/admin-api.service';
 import { imageManagementService } from '@/services/image-management.service';
 import type { 
+  Article,
   PublishedArticle, 
   ArticleInsert, 
   ArticleUpdate 
@@ -25,14 +27,14 @@ export class ArticleService {
   /**
    * Get all articles including drafts (admin only) - Uses API route
    */
-  async getAllArticles(options: { page?: number; limit?: number } = {}) {
+  async getAllArticles(options: { page?: number; limit?: number } = {}): Promise<Article[]> {
     return await adminApiService.getArticles();
   }
 
   /**
    * Get article by ID (admin only) - Uses API route
    */
-  async getArticleById(id: string) {
+  async getArticleById(id: string): Promise<Article> {
     const response = await fetch(`/api/admin/articles/${id}`);
     const result = await response.json();
     
@@ -115,18 +117,18 @@ export class ArticleService {
   /**
    * Create article (admin/author) - Uses API route to handle server-side operations
    */
-  async createArticle(articleData: ArticleInsert) {
+  async createArticle(articleData: ArticleInsert): Promise<Article> {
     // Use admin API service instead of repository for client-side admin operations
     const result = await adminApiService.createArticle(articleData);
     
     // Enhanced image tracking after article creation
-    if (result.data?.id) {
+    if (result?.id) {
       try {
         // Use the enhanced method that handles both orphaned images and usage tracking
         const trackingResult = await imageManagementService.updateArticleImageUsageEnhanced(
-          result.data.id, 
+          result.id, 
           articleData.content || '',
-          articleData.featured_image_url
+          articleData.featured_image_url || ''
         );
         console.log('✅ Enhanced image tracking completed for new article:', trackingResult);
       } catch (error) {
@@ -141,7 +143,7 @@ export class ArticleService {
   /**
    * Update article (admin/author)
    */
-  async updateArticle(id: string, updates: ArticleUpdate) {
+  async updateArticle(id: string, updates: ArticleUpdate): Promise<Article> {
     // Use admin API service for client-side admin operations
     const result = await adminApiService.updateArticle(id, updates);
     
@@ -158,8 +160,8 @@ export class ArticleService {
         // Use the enhanced method for comprehensive tracking
         const trackingResult = await imageManagementService.updateArticleImageUsageEnhanced(
           id, 
-          finalContent,
-          updates.featured_image_url
+          finalContent || '',
+          updates.featured_image_url || ''
         );
         console.log('✅ Enhanced image tracking completed for updated article:', trackingResult);
       } catch (error) {
@@ -181,7 +183,7 @@ export class ArticleService {
   /**
    * Get article statistics
    */
-  async getArticleStats(articleId: string) {
+  async getArticleStats(articleId: string): Promise<any> {
     return await articleRepository.getArticleStats(articleId);
   }
 }

@@ -153,11 +153,11 @@ export default function AdminLoginPage() {
           </Form.Item>
         </Form>
 
-        <div className="text-center mt-6">
+        {/* <div className="text-center mt-6">
           <Text style={{ color: '#64748b', fontSize: '14px' }}>
             Default credentials: admin / donozon2024
           </Text>
-        </div>
+        </div> */}
       </Card>
 
       {/* Custom Styles - Scoped to admin login page only */}

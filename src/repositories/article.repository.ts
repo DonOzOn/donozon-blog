@@ -184,9 +184,10 @@ export class ArticleRepository {
       .from('published_articles')
       .select('*', { count: 'exact' });
 
-    // Full-text search
+    // Search in title and content using ilike (case-insensitive LIKE)
     if (searchQuery) {
-      queryBuilder = queryBuilder.textSearch('title', searchQuery);
+      const searchTerm = `%${searchQuery}%`;
+      queryBuilder = queryBuilder.or(`title.ilike.${searchTerm},content.ilike.${searchTerm},excerpt.ilike.${searchTerm}`);
     }
 
     // Filter by category

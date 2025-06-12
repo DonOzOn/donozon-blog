@@ -1,9 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import Link from 'next/link';
+'use client';
 
+import Link from 'next/link';
 import { Footer } from '@/components/Footer';
 import { Navbar } from '@/components/Navbar';
-import { sampleArticles } from '@/lib/articles';
+import { useCategoriesWithCounts } from '@/hooks/useCategories';
+import { Spin } from 'antd';
 
 interface CategoryCardProps {
   name: string;
@@ -49,60 +51,110 @@ const CategoryCard = ({ name, count, icon, href, color, iconBg, description }: C
 );
 
 export default function CategoriesPage() {
-  // Calculate article counts dynamically
-  const getArticleCount = (category: string) => {
-    return sampleArticles.filter(article => 
-      article.category.toLowerCase() === category.toLowerCase()
-    ).length;
-  };
+  // Fetch categories with real article counts from database
+  const { data: dbCategories, isLoading, error } = useCategoriesWithCounts();
 
-  const categories = [
-    { 
-      name: 'Photography', 
-      count: getArticleCount('photography'), 
+  // Default category configurations for styling and icons
+  const categoryDefaults = {
+    'photography': { 
       icon: '📸', 
-      href: '/category/photography',
-      color: '#FFFFFF',
       iconBg: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
       description: 'Capturing moments, techniques, and visual storytelling'
     },
-    { 
-      name: 'Development', 
-      count: getArticleCount('development'), 
+    'development': { 
       icon: '💻', 
-      href: '/category/development',
-      color: '#FFFFFF',
       iconBg: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
       description: 'Web development, programming, and technical tutorials'
     },
-    { 
-      name: 'Travel', 
-      count: getArticleCount('travel'), 
+    'web-development': { 
+      icon: '🌐', 
+      iconBg: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+      description: 'Modern web technologies, frameworks, and best practices'
+    },
+    'travel': { 
       icon: '✈️', 
-      href: '/category/travel',
-      color: '#FFFFFF',
       iconBg: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
       description: 'Travel guides, destinations, and adventure stories'
     },
-    { 
-      name: 'Food', 
-      count: getArticleCount('food'), 
+    'food': { 
       icon: '🍽️', 
-      href: '/category/food',
-      color: '#FFFFFF',
       iconBg: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
       description: 'Culinary adventures, recipes, and food culture'
     },
-    { 
-      name: 'Activities', 
-      count: getArticleCount('activities'), 
+    'lifestyle': { 
+      icon: '🌟', 
+      iconBg: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
+      description: 'Life tips, wellness, and personal development'
+    },
+    'technology': { 
+      icon: '⚡', 
+      iconBg: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+      description: 'Latest tech trends, gadgets, and innovations'
+    },
+    'tutorial': { 
+      icon: '📚', 
+      iconBg: 'linear-gradient(135deg, #d299c2 0%, #fef9d7 100%)',
+      description: 'Step-by-step guides and educational content'
+    },
+    'activities': { 
       icon: '🏔️', 
-      href: '/category/activities',
-      color: '#FFFFFF',
       iconBg: 'linear-gradient(135deg, #96fbc4 0%, #f9f586 100%)',
       description: 'Outdoor adventures, sports, and recreational activities'
     },
-  ];
+  };
+
+  // Transform database categories into display format
+  const categories = dbCategories?.map(category => {
+    const defaults = categoryDefaults[category.slug as keyof typeof categoryDefaults] || {
+      icon: '📝',
+      iconBg: 'linear-gradient(135deg, #a8a8a8 0%, #d3d3d3 100%)',
+      description: `Discover articles about ${category.name.toLowerCase()}`
+    };
+
+    return {
+      name: category.name,
+      count: category.article_count || 0,
+      icon: defaults.icon,
+      href: `/articles?category=${category.slug}`,
+      color: '#FFFFFF',
+      iconBg: defaults.iconBg,
+      description: defaults.description,
+      slug: category.slug
+    };
+  }) || [];
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-slate-900 overflow-x-hidden scroll-optimized">
+        <Navbar />
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <Spin size="large" />
+            <p className="text-slate-400 mt-4">Loading categories...</p>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-slate-900 overflow-x-hidden scroll-optimized">
+        <Navbar />
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="text-red-400 text-4xl mb-4">⚠️</div>
+            <h2 className="text-xl font-semibold mb-2 text-white">Error Loading Categories</h2>
+            <p className="text-slate-400">Failed to load categories. Please try again later.</p>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-900 overflow-x-hidden scroll-optimized">
@@ -161,7 +213,7 @@ export default function CategoriesPage() {
           </div>
 
           {/* Popular Topics */}
-          <div className="mt-20">
+          {/* <div className="mt-20">
             <h3 className="text-2xl font-bold text-white mb-8 text-center">Popular Topics</h3>
             <div className="flex flex-wrap justify-center gap-3">
               {[
@@ -177,7 +229,7 @@ export default function CategoriesPage() {
                 </button>
               ))}
             </div>
-          </div>
+          </div> */}
 
           {/* Newsletter CTA */}
           {/* <div className="mt-20 text-center">

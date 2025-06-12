@@ -31,6 +31,7 @@ export const Navbar = () => {
 
   const navItems = [
     { name: 'Home', href: '/' },
+    // { name: 'Portfolio', href: '/portfolio' },
     { name: 'Category', href: '/categories' },
     { name: 'About Me', href: '/about' },
   ];
