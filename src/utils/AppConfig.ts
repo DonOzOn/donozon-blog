@@ -1,18 +1,18 @@
 export const AppConfig = {
   site_name: 'DonOzOn Blog',
   title: 'DonOzOn.blog',
-  description: 'A blog about web development, CSS, JavaScript, React and more by Dastin Darmawan',
-  author: 'Dastin Darmawan',
+  description: 'A blog about development, photography and life by Ngo Van Don',
+  author: 'Ngo Van Don',
   locale_region: 'en-us',
   locale: 'en',
   url: 'https://DonOzOn.blog',
   email: 'sky.knight.dn97@gmail.com',
   social: {
-    linkedin: '#',
+    linkedin: 'https://www.linkedin.com/in/ngo-van-don-3b3819183/',
     medium: '#',
-    instagram: '#',
+    instagram: 'https://www.instagram.com/donozon/',
     twitter: '#',
-    facebook: '#',
+    facebook: 'https://www.facebook.com/UchihaDonOzOn/',
   },
   categories: [
     'Photography',

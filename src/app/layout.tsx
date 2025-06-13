@@ -20,6 +20,18 @@ export const metadata: Metadata = {
   authors: [{ name: AppConfig.author }],
   creator: AppConfig.author,
   metadataBase: new URL(AppConfig.url),
+  icons: {
+    icon: [
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+    other: [
+      { url: '/icon-192x192.png', sizes: '192x192', type: 'image/png' },
+    ],
+  },
   openGraph: {
     title: AppConfig.title,
     description: AppConfig.description,
@@ -27,12 +39,21 @@ export const metadata: Metadata = {
     siteName: AppConfig.site_name,
     locale: AppConfig.locale,
     type: 'website',
+    images: [
+      {
+        url: '/donozon.png',
+        width: 1200,
+        height: 630,
+        alt: `${AppConfig.author} - ${AppConfig.site_name}`,
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: AppConfig.title,
     description: AppConfig.description,
     creator: `@${AppConfig.author}`,
+    images: ['/donozon.png'],
   },
   robots: {
     index: true,
@@ -54,6 +75,7 @@ export default function RootLayout({
       <head>
         <meta name="color-scheme" content="dark" />
         <meta name="theme-color" content="#0f0f23" />
+        <link rel="manifest" href="/manifest.json" />
         <style dangerouslySetInnerHTML={{
           __html: `
             html, body { 
