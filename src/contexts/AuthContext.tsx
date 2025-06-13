@@ -31,19 +31,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     // Check if user is already logged in (from localStorage)
     try {
-      const savedAuth = localStorage.getItem('admin_auth');
-      if (savedAuth) {
-        const authData = JSON.parse(savedAuth);
-        if (authData.isAuthenticated && authData.user) {
-          setIsAuthenticated(true);
-          setUser(authData.user);
-          console.log('🔐 Auth restored from localStorage:', authData.user.username);
+      // Only access localStorage on client side
+      if (typeof window !== 'undefined') {
+        const savedAuth = localStorage.getItem('admin_auth');
+        if (savedAuth) {
+          const authData = JSON.parse(savedAuth);
+          if (authData.isAuthenticated && authData.user) {
+            setIsAuthenticated(true);
+            setUser(authData.user);
+            console.log('🔐 Auth restored from localStorage:', authData.user.username);
+          }
         }
       }
     } catch (error) {
       console.error('Error restoring auth from localStorage:', error);
       // Clear invalid localStorage data
-      localStorage.removeItem('admin_auth');
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('admin_auth');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -54,11 +59,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setIsAuthenticated(true);
       setUser({ username });
       
-      // Save to localStorage
-      localStorage.setItem('admin_auth', JSON.stringify({
-        isAuthenticated: true,
-        user: { username }
-      }));
+      // Save to localStorage (client-side only)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('admin_auth', JSON.stringify({
+          isAuthenticated: true,
+          user: { username }
+        }));
+      }
       
       console.log('🔐 User logged in:', username);
       return true;
@@ -69,7 +76,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = () => {
     setIsAuthenticated(false);
     setUser(null);
-    localStorage.removeItem('admin_auth');
+    // Remove from localStorage (client-side only)
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('admin_auth');
+    }
     console.log('🔐 User logged out');
   };
 

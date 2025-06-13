@@ -32,16 +32,21 @@ export default function ArticlesManagePage() {
   const router = useRouter();
   const [searchText, setSearchText] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [mounted, setMounted] = useState(false);
   
   const { data: articlesData, isLoading, error, refetch } = useAllArticles({ limit: 100 });
   const { data: categories = [] } = useCategories();
   const deleteArticleMutation = useDeleteArticle();
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted && !isAuthenticated) {
       router.push('/admin');
     }
-  }, [isAuthenticated, router]);
+  }, [mounted, isAuthenticated, router]);
 
   // Debug logging
   useEffect(() => {
@@ -52,6 +57,19 @@ export default function ArticlesManagePage() {
     console.log('  articles array:', articlesData);
     console.log('  articles length:', articlesData?.length);
   }, [isLoading, error, articlesData]);
+
+  if (!mounted) {
+    return (
+      <AdminLayout title="Manage Articles" description="Create, edit, and organize your blog posts">
+        <div className="min-h-[400px] flex items-center justify-center">
+          <div className="text-center">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+            <p className="mt-2 text-slate-400">Loading...</p>
+          </div>
+        </div>
+      </AdminLayout>
+    );
+  }
 
   if (!isAuthenticated) {
     return null;

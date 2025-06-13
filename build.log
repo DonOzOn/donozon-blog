@@ -1,0 +1,75 @@
+
+> donozonblog@0.1.0 build
+> next build
+
+   ▲ Next.js 15.3.3
+   - Environments: .env.local
+
+   Creating an optimized production build ...
+ ⚠ Compiled with warnings in 13.0s
+
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./src/app/api/admin/articles/[id]/route.ts
+
+ ✓ Compiled successfully in 20.0s
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/33) ...
+   Generating static pages (8/33) 
+   Generating static pages (16/33) 
+   Generating static pages (24/33) 
+ ✓ Generating static pages (33/33)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                 Size  First Load JS
+┌ ○ /                                    5.93 kB         445 kB
+├ ○ /_not-found                            990 B         102 kB
+├ ○ /about                                 686 B         189 kB
+├ ○ /admin                               3.46 kB         265 kB
+├ ○ /admin/articles                         3 kB         621 kB
+├ ƒ /admin/articles/edit/[id]            3.99 kB         582 kB
+├ ○ /admin/articles/new                  3.74 kB         582 kB
+├ ○ /admin/categories                    4.98 kB         475 kB
+├ ○ /admin/dashboard                     9.81 kB         516 kB
+├ ○ /admin/images                          21 kB         650 kB
+├ ○ /admin/tags                          7.13 kB         475 kB
+├ ƒ /api/admin/articles                    190 B         102 kB
+├ ƒ /api/admin/articles/[id]               190 B         102 kB
+├ ƒ /api/admin/categories                  190 B         102 kB
+├ ƒ /api/admin/images/auto-delete          190 B         102 kB
+├ ƒ /api/admin/images/batch                190 B         102 kB
+├ ƒ /api/admin/images/cleanup              190 B         102 kB
+├ ƒ /api/admin/images/scan-usage           190 B         102 kB
+├ ƒ /api/admin/images/stats                190 B         102 kB
+├ ƒ /api/admin/tags                        190 B         102 kB
+├ ƒ /api/admin/tags/[id]                   190 B         102 kB
+├ ƒ /api/cron/cleanup-images               190 B         102 kB
+├ ƒ /api/debug/images                      190 B         102 kB
+├ ƒ /api/env-check                         190 B         102 kB
+├ ƒ /api/imagekit/delete                   190 B         102 kB
+├ ƒ /api/imagekit/upload                   190 B         102 kB
+├ ƒ /api/upload/image                      190 B         102 kB
+├ ƒ /api/upload/image/delete               190 B         102 kB
+├ ○ /articles                            8.44 kB         527 kB
+├ ƒ /articles/[slug]                       696 B         194 kB
+├ ○ /categories                          3.98 kB         241 kB
+├ ƒ /category/[slug]                      2.3 kB         196 kB
+├ ○ /contact                             4.47 kB         193 kB
+├ ○ /env-check                             773 B         102 kB
+└ ○ /portfolio                           9.94 kB         198 kB
++ First Load JS shared by all             101 kB
+  ├ chunks/1684-25e3ecbd44109682.js      46.2 kB
+  ├ chunks/4bd1b696-2803f9404d2031e2.js  53.2 kB
+  └ other shared chunks (total)          1.99 kB
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

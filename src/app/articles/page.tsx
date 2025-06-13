@@ -2,12 +2,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { useState, useEffect, JSXElementConstructor, Key, ReactElement, ReactNode, ReactPortal } from 'react';
+import { useState, useEffect, JSXElementConstructor, Key, ReactElement, ReactNode, ReactPortal, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { ArticleCard } from '@/components/ArticleCard';
 import { Footer } from '@/components/Footer';
 import { Navbar } from '@/components/Navbar';
 import { SearchSuggestions } from '@/components/SearchSuggestions';
+import { normalizeArticleData, type ArticleCardData } from '@/types/ArticleCard';
 import { useSearchArticles, useArticles } from '@/hooks/useArticles';
 import { useCategories } from '@/hooks/useCategories';
 import { usePopularTags } from '@/hooks/useTags';
@@ -19,9 +20,32 @@ import { SearchOutlined, ClearOutlined, LoadingOutlined } from '@ant-design/icon
 const { Search } = Input;
 const { Option } = Select;
 
+
 export default function ArticlesPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-slate-900">
+          <Spin size="large" />
+        </div>
+      }
+    >
+      <ArticlesPageContent />
+    </Suspense>
+  );
+}
+
+ function ArticlesPageContent() {
+  'use client';
   const router = useRouter();
   const searchParams = useSearchParams();
+  
+  // Add mounted state to prevent hydration issues
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   
   // Debounced search hook
   const {
@@ -55,9 +79,16 @@ export default function ArticlesPage() {
   const { data: categories = [] } = useCategories();
   const { data: popularTags = [] } = usePopularTags(50);
   
-  // Search or get all articles based on filters
+  // Determine if we have active filters
   const hasFilters = debouncedSearchQuery || selectedCategory || selectedTags.length > 0;
   
+  // Always fetch all articles as fallback
+  const allArticlesResults = useArticles({
+    page: currentPage,
+    limit: pageSize,
+  });
+
+  // Fetch search results only when we have filters
   const searchResults = useSearchArticles({
     query: debouncedSearchQuery || undefined,
     category: selectedCategory || undefined,
@@ -66,14 +97,13 @@ export default function ArticlesPage() {
     limit: pageSize,
   });
 
-  const allArticlesResults = useArticles({
-    page: currentPage,
-    limit: pageSize,
-  });
-
-  // Use search results if we have filters, otherwise use all articles
-  const articlesQuery = hasFilters ? searchResults : allArticlesResults;
+  // Use search results if we have filters AND search results are available, otherwise use all articles
+  const shouldUseSearchResults = hasFilters && searchResults.data;
+  const articlesQuery = shouldUseSearchResults ? searchResults : allArticlesResults;
   const { data: articlesData, isLoading } = articlesQuery;
+  
+  // Use search loading state only when actively searching with filters
+  const isActuallyLoading = hasFilters ? searchResults.isLoading : allArticlesResults.isLoading;
   
   const articles = articlesData?.data || [];
   const pagination = articlesData?.pagination || { total: 0, page: 1, limit: pageSize, hasNext: false };
@@ -188,7 +218,17 @@ export default function ArticlesPage() {
 
   const hasActiveFilters = debouncedSearchQuery || selectedCategory || selectedTags.length > 0;
 
+  // Don't render until mounted to prevent hydration mismatches
+  if (!mounted) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-900">
+        <Spin size="large" />
+      </div>
+    );
+  }
+
   return (
+    <Suspense>
     <div className="min-h-screen bg-slate-900 overflow-x-hidden">
       <Navbar />
       
@@ -413,11 +453,11 @@ export default function ArticlesPage() {
           {/* Results Summary */}
           <div className="flex justify-between items-center mb-6">
             <div className="text-slate-400 flex items-center gap-2">
-              {isLoading || (isSearching && hasSearchValue) ? (
+              {isActuallyLoading || (isSearching && hasSearchValue && hasFilters) ? (
                 <>
                   <Spin size="small" />
                   <span>
-                    {isSearching && hasSearchValue ? 'Searching articles...' : 'Loading articles...'}
+                    {isSearching && hasSearchValue && hasFilters ? 'Searching articles...' : 'Loading articles...'}
                   </span>
                 </>
               ) : (
@@ -444,7 +484,7 @@ export default function ArticlesPage() {
           </div>
 
           {/* Articles Grid */}
-          {isLoading || (isSearching && hasSearchValue) ? (
+          {isActuallyLoading || (isSearching && hasSearchValue && hasFilters) ? (
             <LoadingSkeleton />
           ) : articles.length === 0 ? (
             <div className="text-center py-16">
@@ -483,18 +523,16 @@ export default function ArticlesPage() {
           ) : (
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
-                {articles.map((article, index) => (
-                  <ArticleCard
-                    key={article.id}
-                    title={article.title}
-                    author={article.author_name || 'DonOzOn'}
-                    date={article.published_at || article.created_at}
-                    readTime={`${article.reading_time || 5} min read`}
-                    imageUrl={article.featured_image_url || '/images/default-article.jpg'}
-                    slug={article.slug}
-                    isHovered={index % 8 === 3}
-                  />
-                ))}
+                {articles.map((article, index) => {
+                  const normalizedProps = normalizeArticleData(article as ArticleCardData);
+                  return (
+                    <ArticleCard
+                      key={article.id}
+                      {...normalizedProps}
+                      isHovered={index % 8 === 3}
+                    />
+                  );
+                })}
               </div>
 
               {/* Pagination */}
@@ -734,5 +772,6 @@ export default function ArticlesPage() {
         }
       `}</style>
     </div>
+    </Suspense>
   );
 }

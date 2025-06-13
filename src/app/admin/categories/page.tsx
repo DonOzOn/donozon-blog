@@ -42,6 +42,7 @@ export default function CategoriesManagePage() {
   const [searchText, setSearchText] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [mounted, setMounted] = useState(false);
   const [form] = Form.useForm();
   
   const { data: categories = [], isLoading, error, refetch } = useCategories();
@@ -50,10 +51,14 @@ export default function CategoriesManagePage() {
   const deleteCategoryMutation = useDeleteCategory();
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted && !isAuthenticated) {
       router.push('/admin');
     }
-  }, [isAuthenticated, router]);
+  }, [mounted, isAuthenticated, router]);
 
   // Debug logging
   useEffect(() => {
@@ -63,6 +68,19 @@ export default function CategoriesManagePage() {
     console.log('  categories:', categories);
     console.log('  categories length:', categories?.length);
   }, [isLoading, error, categories]);
+
+  if (!mounted) {
+    return (
+      <AdminLayout title="Manage Categories" description="Create and organize your blog categories">
+        <div className="min-h-[400px] flex items-center justify-center">
+          <div className="text-center">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+            <p className="mt-2 text-slate-400">Loading...</p>
+          </div>
+        </div>
+      </AdminLayout>
+    );
+  }
 
   if (!isAuthenticated) {
     return null;

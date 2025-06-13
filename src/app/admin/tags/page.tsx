@@ -45,6 +45,7 @@ export default function TagsManagePage() {
   const [searchText, setSearchText] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingTag, setEditingTag] = useState<TagType | null>(null);
+  const [mounted, setMounted] = useState(false);
   const [form] = Form.useForm();
   
   const { data: tags = [], isLoading, error, refetch } = useTags();
@@ -53,10 +54,14 @@ export default function TagsManagePage() {
   const deleteTagMutation = useDeleteTag();
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted && !isAuthenticated) {
       router.push('/admin');
     }
-  }, [isAuthenticated, router]);
+  }, [mounted, isAuthenticated, router]);
 
   // Debug logging
   useEffect(() => {
@@ -66,6 +71,19 @@ export default function TagsManagePage() {
     console.log('  tags:', tags);
     console.log('  tags length:', tags?.length);
   }, [isLoading, error, tags]);
+
+  if (!mounted) {
+    return (
+      <AdminLayout title="Manage Tags" description="Organize and manage your content tags">
+        <div className="min-h-[400px] flex items-center justify-center">
+          <div className="text-center">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+            <p className="mt-2 text-slate-400">Loading...</p>
+          </div>
+        </div>
+      </AdminLayout>
+    );
+  }
 
   if (!isAuthenticated) {
     return null;

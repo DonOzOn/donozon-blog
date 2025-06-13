@@ -145,10 +145,12 @@ export const useSearchArticles = (searchParams: {
   limit?: number;
   page?: number;
 }) => {
+  const hasSearchCriteria = !!(searchParams.query || searchParams.category || searchParams.tags?.length);
+  
   return useQuery({
     queryKey: articleKeys.search(searchParams),
     queryFn: () => articleService.searchArticles(searchParams),
-    enabled: !!(searchParams.query || searchParams.category || searchParams.tags?.length),
+    enabled: hasSearchCriteria,
     staleTime: 2 * 60 * 1000, // 2 minutes for search results
   });
 };

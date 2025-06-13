@@ -22,6 +22,28 @@ const nextConfig = {
       }
     ],
   },
+  // Suppress webpack warning for Supabase realtime module
+  webpack: (config, { isServer }) => {
+    // Ignore critical dependency warnings from Supabase realtime
+    config.ignoreWarnings = [
+      {
+        module: /RealtimeClient\.js/,
+        message: /Critical dependency: the request of a dependency is an expression/,
+      },
+    ];
+
+    // Handle potential build issues with dynamic imports
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+      };
+    }
+
+    return config;
+  },
 };
 
 export default nextConfig;

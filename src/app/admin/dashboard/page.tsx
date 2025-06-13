@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, Row, Col, Statistic } from 'antd';
 import { 
@@ -22,15 +22,33 @@ import Link from 'next/link';
 export default function AdminDashboard() {
   const { isAuthenticated } = useAuth();
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
   
   const { data: articlesData, isLoading: articlesLoading, error: articlesError } = useAllArticles({ limit: 1000 });
   const { data: categories = [] } = useCategories();
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted && !isAuthenticated) {
       router.push('/admin');
     }
-  }, [isAuthenticated, router]);
+  }, [mounted, isAuthenticated, router]);
+
+  if (!mounted) {
+    return (
+      <AdminLayout title="Dashboard" description="Overview of your blog">
+        <div className="min-h-[400px] flex items-center justify-center">
+          <div className="text-center">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+            <p className="mt-2 text-slate-400">Loading...</p>
+          </div>
+        </div>
+      </AdminLayout>
+    );
+  }
 
   if (!isAuthenticated) {
     return null;

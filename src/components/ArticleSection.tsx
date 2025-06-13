@@ -3,7 +3,7 @@
 import { useFeaturedArticles, useArticlesByCategory } from '@/hooks/useArticles';
 import { ArticleCard } from '@/components/ArticleCard';
 import { Section } from '@/components/Section';
-import { Skeleton } from 'antd';
+import { normalizeArticleData, type ArticleCardData } from '@/types/ArticleCard';
 
 interface ArticleSectionProps {
   title: string;
@@ -40,14 +40,14 @@ const EmptyState = ({ title }: { title: string }) => (
 const LoadingSkeleton = () => (
   <>
     {[...Array(4)].map((_, index) => (
-      <div key={index} className="space-y-4">
-        <Skeleton.Image className="w-full h-48 rounded-lg" />
+      <div key={index} className="space-y-4 animate-pulse">
+        <div className="w-full h-48 bg-slate-700/50 rounded-lg"></div>
         <div className="space-y-2">
-          <Skeleton.Input className="w-full h-6" />
-          <Skeleton.Input className="w-3/4 h-4" />
+          <div className="h-6 bg-slate-700/50 rounded w-full"></div>
+          <div className="h-4 bg-slate-700/30 rounded w-3/4"></div>
           <div className="flex gap-4">
-            <Skeleton.Input className="w-20 h-4" />
-            <Skeleton.Input className="w-16 h-4" />
+            <div className="h-4 bg-slate-700/30 rounded w-20"></div>
+            <div className="h-4 bg-slate-700/30 rounded w-16"></div>
           </div>
         </div>
       </div>
@@ -63,8 +63,9 @@ export const ArticleSection = ({ title, categorySlug, linkHref, featured = false
   const query = featured ? featuredQuery : categoryQuery;
   const { data: articles = [], isLoading, error } = query;
 
-  // Take only the specified limit
-  const displayArticles = articles.slice(0, limit);
+  // Ensure we always have an array and take only the specified limit
+  const safeArticles = Array.isArray(articles) ? articles : [];
+  const displayArticles = safeArticles.slice(0, limit);
 
   if (error) {
     return (
@@ -80,6 +81,14 @@ export const ArticleSection = ({ title, categorySlug, linkHref, featured = false
             <p className="text-slate-500 text-sm">
               There was an error loading {title.toLowerCase()} articles. Please try again later.
             </p>
+            {process.env.NODE_ENV === 'development' && (
+              <details className="mt-4 text-left max-w-md mx-auto">
+                <summary className="text-red-400 cursor-pointer">Debug Info</summary>
+                <pre className="text-xs text-red-300 mt-2 bg-red-900/20 p-2 rounded">
+                  {JSON.stringify(error, null, 2)}
+                </pre>
+              </details>
+            )}
           </div>
         </div>
       </Section>
@@ -93,18 +102,16 @@ export const ArticleSection = ({ title, categorySlug, linkHref, featured = false
       ) : displayArticles.length === 0 ? (
         <EmptyState title={title} />
       ) : (
-        displayArticles.map((article, index) => (
-          <ArticleCard
-            key={article.id || index}
-            title={article.title || 'Untitled Article'}
-            author={article.author_name || article.author || 'Unknown Author'}
-            date={article.published_at || article.publishedAt || new Date().toISOString()}
-            readTime={`${article.reading_time || 5} min read`}
-            imageUrl={article.featured_image_url || article.imageUrl || '/images/default-article.jpg'}
-            slug={article.slug || ''}
-            isHovered={featured ? index === 0 : index === Math.floor(Math.random() * displayArticles.length)} // Add some variety
-          />
-        ))
+        displayArticles.map((article, index) => {
+          const normalizedProps = normalizeArticleData(article as ArticleCardData);
+          return (
+            <ArticleCard
+              key={article.id || index}
+              {...normalizedProps}
+              isHovered={featured ? index === 0 : index === Math.floor(Math.random() * displayArticles.length)} // Add some variety
+            />
+          );
+        })
       )}
     </Section>
   );

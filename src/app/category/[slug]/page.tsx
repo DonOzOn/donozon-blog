@@ -7,6 +7,7 @@ import { ArticleCard } from '@/components/ArticleCard';
 import { Footer } from '@/components/Footer';
 import { Navbar } from '@/components/Navbar';
 import { getArticlesByCategory } from '@/lib/articles';
+import { normalizeArticleData, type ArticleCardData } from '@/types/ArticleCard';
 
 interface CategoryPageProps {
   params: Promise<{
@@ -203,18 +204,19 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
               {/* Articles Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
-                {articles.map((article, index) => (
-                  <ArticleCard
-                    key={article.id}
-                    title={article.title}
-                    author={article.author || 'DonOzOn'}
-                    date={article.publishedAt}
-                    readTime={article.readTime}
-                    imageUrl={article.imageUrl || '/images/default-article.jpg'}
-                    slug={article.slug}
-                    isHovered={index % 4 === 1} // Add some variety
-                  />
-                ))}
+                {articles.map((article, index) => {
+                  const normalizedProps = normalizeArticleData({
+                    ...article,
+                    category: article.category || categoryName
+                  } as ArticleCardData);
+                  return (
+                    <ArticleCard
+                      key={article.id}
+                      {...normalizedProps}
+                      isHovered={index % 4 === 1} // Add some variety
+                    />
+                  );
+                })}
               </div>
 
               {/* Load More Section */}
