@@ -57,17 +57,17 @@ export const ROUTES = {
 export const ROUTE_METADATA = {
   [ROUTES.HOME]: {
     title: 'Home - DonOzOn Blog',
-    description: 'Digital development blog by Dastin Darmawan',
+    description: 'A blog about development, photography and life of DonOzOn',
     keywords: ['blog', 'development', 'programming', 'photography'],
   },
   [ROUTES.ABOUT]: {
     title: 'About - DonOzOn Blog',
-    description: 'Learn more about Dastin Darmawan and his journey',
+    description: 'Learn more about Don OzOn',
     keywords: ['about', 'developer', 'photographer', 'bio'],
   },
   [ROUTES.CONTACT]: {
     title: 'Contact - DonOzOn Blog',
-    description: 'Get in touch with Dastin Darmawan',
+    description: 'Get in touch with DonOzOn',
     keywords: ['contact', 'email', 'get in touch'],
   },
   [ROUTES.ARTICLES]: {
