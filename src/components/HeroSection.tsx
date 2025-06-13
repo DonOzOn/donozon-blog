@@ -74,7 +74,7 @@ export const HeroSection = () => {
                 </button>
               </Link>
               
-              <Link href="/articles">
+              <Link href="/contact">
                 <button className="group px-8 py-4 glass-card rounded-xl font-semibold text-white border border-white/20 hover:border-emerald-400/40 transition-all duration-300 hover:bg-emerald-500/10">
                   <span className="flex items-center justify-center gap-2">
                     ⚡ Contact me
